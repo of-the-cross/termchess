@@ -2,23 +2,26 @@
   This file is concerned with ANSI escape sequences to effectively
   paint onto a terminal.
  */
-#ifndef PAINTER_H
-#define PAINTER_H
+#ifndef TERMPAINTER_H
+#define TERMPAINTER_H
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-#define ESC_CHAR ((char) 27)
-#define ESC(s) printf("%c%s", 27, s)
+#define PN_ESC_CHAR ((char) 27)
+#define PN_ESC(...) \
+	printf("%c", 27);							\
+	printf(__VA_ARGS__)
 
-#define PN_CURSOR_TO_HOME     ESC("[H")
-#define PN_CURSOR_INVISIBLE   ESC("[?25l")
-#define PN_CURSOR_VISIBLE     ESC("[?25h")
-#define PN_ALT_BUFFER_ENABLE  ESC("[?1049h")
-#define PN_ALT_BUFFER_DISABLE ESC("[?1049l")
-#define PN_CURSOR_SAVE        ESC("[s")
-#define PN_CURSOR_LOAD        ESC("[u")
-#define PN_SCREEN_WIPE        ESC("[2J")
+#define PN_CURSOR_TO_HOME     PN_ESC("[H")
+#define PN_CURSOR_INVISIBLE   PN_ESC("[?25l")
+#define PN_CURSOR_VISIBLE     PN_ESC("[?25h")
+#define PN_ALT_BUFFER_ENABLE  PN_ESC("[?1049h")
+#define PN_ALT_BUFFER_DISABLE PN_ESC("[?1049l")
+#define PN_CURSOR_SAVE        PN_ESC("[s")
+#define PN_CURSOR_LOAD        PN_ESC("[u")
+#define PN_SCREEN_WIPE        PN_ESC("[2J")
 
 /*
   Switch to alternate buffer, wipe screen, and make cursor invisible.
@@ -60,5 +63,16 @@ pn_general_setup(void)
 	pn_general_init();
 	atexit(pn_general_cleanup);
 }
+
+/*
+  Move cursor to the given line and column in the terminal.
+ */
+static inline void
+pn_cursor_to(size_t line, size_t column)
+{
+	PN_ESC("[%lu;%luH", (size_t) line, (size_t) column);
+}
+
+#define PN_CURSOR_TO(line, column) PN_ESC("[%lu;%luH", (size_t) line, (size_t) column)
 
 #endif

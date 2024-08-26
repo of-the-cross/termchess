@@ -3,8 +3,8 @@
   this file to disappear very quickly in the following commits.
  */
 
-#ifndef MOVE_PRINTER_H
-#define MOVE_PRINTER_H
+#ifndef TC_MOVE_PRINTER_H
+#define TC_MOVE_PRINTER_H
 
 #include "chess_defs.h"
 #include "move_getter.h"

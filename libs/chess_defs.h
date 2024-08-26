@@ -1,5 +1,8 @@
-#ifndef CHESS_DEFINITIONS_H
-#define CHESS_DEFINITIONS_H
+#ifndef TC_CHESS_DEFINITIONS_H
+#define TC_CHESS_DEFINITIONS_H
+
+#include <stddef.h>
+#define TC_COL_SIZE 8
 
 typedef enum
 {
@@ -12,6 +15,8 @@ typedef enum
 	tc_g,
 	tc_h,
 } tc_col;
+
+#define TC_ROW_SIZE 8
 
 typedef enum
 {
@@ -51,7 +56,20 @@ typedef struct
 {
 	tc_piece_type type;
 	tc_piece_color color;
-} tc_piece;
+	tc_square location;
+} tc_piece_inst;
+/*
+  tc_piece_inst stands for
+  terminal chess piece instance
+  ~~~~~~~~~~~~~~ ~~~~~ ~~~~~~~~
+        |          |       |
+        |          |       |
+  program name     |       |
+                   |       |
+               a piece...  |
+                           |
+                   ...on the board
+*/
 
 typedef struct
 {
@@ -61,9 +79,19 @@ typedef struct
 
 typedef struct
 {
-	tc_piece piece_moved;
-	tc_square from_square;
+	tc_piece_inst piece_moved;
 	tc_square to_square;
 } tc_move;
+
+typedef struct
+{
+	size_t history_max;
+	size_t history_size;
+	tc_move* history_v;
+
+	size_t piece_max;
+	size_t piece_size;
+	tc_piece_inst* piece_v;
+} tc_board_state;
 
 #endif
