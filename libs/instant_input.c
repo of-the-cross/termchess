@@ -66,19 +66,23 @@ struct termios orig_termios;
 struct termios used_termios;
 int initialized = 0;
 
-/* Resets the terminal's state, all its modes, to origin_termios.
-   Must be called after termmode_save_original is already called,
-   and likely at the end of the program when the program exits.
-   with that said, termmode_save_original automatically sets this
-   function to be called upon exit, so there is no need to ever
-   call this function. */
+/*
+  Resets the terminal's state, all its modes, to origin_termios.
+  Must be called after termmode_save_original is already called,
+  and likely at the end of the program when the program exits.
+  with that said, termmode_save_original automatically sets this
+  function to be called upon exit, so there is no need to ever
+  call this function.
+*/
 void
 termmode_load_original()
 { tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios); }
 
-/* Save the terminal's state as it is right now. Should be
-   called at the start of the program so that program doesn't
-   have lasting effects on a terminal throughout a session. */
+/*
+  Save the terminal's state as it is right now. Should be
+  called at the start of the program so that program doesn't
+  have lasting effects on a terminal throughout a session.
+*/
 void
 termmode_save_original()
 {
@@ -87,38 +91,50 @@ termmode_save_original()
   atexit(termmode_load_original);
 }
 
-/* Activates all the settings set to used_termios to
-   the actual terminal. Must be called for changes to set. */
+/*
+  Activates all the settings set to used_termios to
+  the actual terminal. Must be called for changes to set.
+*/
 void
 termmode_set_modes()
 { tcsetattr(STDIN_FILENO, TCSAFLUSH, &used_termios); }
 
-/* Disable echo when user types to terminal. Must be set
-   with termmode_set_modes() first. */
+/*
+  Disable echo when user types to terminal. Must be set
+  with termmode_set_modes() first.
+*/
 void
 termmode_raw()
 { used_termios.c_lflag &= ~ECHO; }
 
-/* Enable echo when user types to terminal be set with
-   termmode_set_modes() first. */
+/*
+  Enable echo when user types to terminal be set with
+  termmode_set_modes() first.
+*/
 void
 termmode_nonraw()
 { used_termios.c_lflag |= ECHO; }
 
-/* Waits until return character before parsing input.
-   Must be set with termmode_set_modes() first. */
+/*
+  Waits until return character before parsing input.
+  Must be set with termmode_set_modes() first.
+*/
 void
 termmode_canon()
 { used_termios.c_lflag |= ICANON; }
 
-/* Parse console input byte-by-byte, not waiting for a return.
-   Must be set with termmode_set_modes() first. */
+/*
+  Parse console input byte-by-byte, not waiting for a return.
+  Must be set with termmode_set_modes() first.
+*/
 void
 termmode_noncanon()
 { used_termios.c_lflag &= ~ICANON; }
 
-/* Exit program automatically if ii_next_char() is called without
-   calling ii_init() first */
+/*
+  Exit program automatically if ii_next_char() is called without
+  calling ii_init() first
+*/
 char
 uninitialized_read(void)
 {
@@ -127,27 +143,35 @@ uninitialized_read(void)
 	exit(-1);
 }
 
-/* If ii_next_char() has been called after ii_init() has also been
-   called, then the program is free to call fgetc */
+/*
+  If ii_next_char() has been called after ii_init() has also been
+  called, then the program is free to call fgetc
+*/
 char
 initialized_read(void)
 {
 	return fgetc(stdin);
 }
 
-/* Function which is either an error (uninitialized_read) or is
-   an fgetc wrapper (initialized_read) */
+/*
+  Function which is either an error (uninitialized_read) or is
+  an fgetc wrapper (initialized_read)
+*/
 char (*next_char_func)(void) = &uninitialized_read;
 
-/* Wrapper for next_char_func */
+/*
+  Wrapper for next_char_func
+*/
 char
 ii_next_char(void)
 {
 	return (*next_char_func)();
 }
 
-/* Call this at the start of your program to make the terminal an
-   instant-input terminal */
+/*
+  Call this at the start of your program to make the terminal an
+  instant-input terminal
+*/
 void
 ii_init(void)
 {

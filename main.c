@@ -1,13 +1,13 @@
-#include <stdio.h>
 #include "libs/instant_input.h"
+#include "libs/move_printer.h"
 
 int
 main(void)
 {
 	ii_init();
+	int parse_error = 0;
+	while (!parse_error)
+		parse_error = tc_get_n_print_attempt();
 	
-	printf("Hello, world!\n");
-	printf("Getting next char:\n");
-	printf("%c was your input!\n", ii_next_char());
 	return 0;
 }
