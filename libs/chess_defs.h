@@ -79,10 +79,15 @@ typedef struct
 
 typedef struct
 {
-	tc_piece_inst piece_moved;
-	tc_square to_square;
+	tc_piece_inst piece_from;
+	tc_piece_inst piece_to;
 } tc_move;
 
+/*
+  Stores current position of pieces as well
+  as the history of the game. That is to say,
+  everything about a game.
+ */
 typedef struct
 {
 	size_t history_max;

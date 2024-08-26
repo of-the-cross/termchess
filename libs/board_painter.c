@@ -75,7 +75,7 @@ tc_print_board(void)
   inputted into this function.
 */
 void
-print_piece(tc_piece_inst piece)
+print_raw_piece(tc_piece_inst piece)
 {
 	switch (piece.type) {
 	case tc_pawn:
@@ -140,19 +140,52 @@ size_t chesscol_to_termcol(size_t col)
 	return col;
 }
 
+/*
+  Given some square (as is understood by game logic),
+  move the cursor to its graphical position in the terminal.
+ */
+void
+tc_cursor_to_square(tc_square square)
+{
+	size_t row = chessrow_to_termrow(square.row);
+	size_t col = chesscol_to_termcol(square.col);
+	pn_cursor_to(row, col);
+}
+
+/*
+  Print a piece instance with its proper symbol on its
+  proper square. This uses the gamelogic-to-terminal-graphics
+  process discussed above.
+ */
+void
+tc_print_placed_piece(tc_piece_inst piece)
+{
+	tc_cursor_to_square(piece.location);
+	print_raw_piece(piece);
+}
+
+/*
+  Print whitespace over some defined square in the terminal.
+  This uses the gamelogic-to-terminal-graphics process
+  discussed above.
+ */
+void
+tc_empty_square(tc_square square)
+{
+	tc_cursor_to_square(square);
+	putchar(' ');
+}
+
+/*
+  Paint all the pieces to the terminal given a tc_board_state
+  type. tc_print_board must be called before this is called
+  or everything will look funky.
+ */
 void
 tc_print_pieces(tc_board_state* board_state)
 {
 	size_t piece_count = board_state -> piece_size;
 
-	tc_piece_inst current_piece;
 	for (size_t i = 0; i < piece_count; ++i)
-	{
-		current_piece = board_state -> piece_v[i];
-
-		size_t row = chessrow_to_termrow(current_piece.location.row);
-		size_t col = chesscol_to_termcol(current_piece.location.col);
-		pn_cursor_to(row, col);
-		print_piece(current_piece);
-	}
+		tc_print_placed_piece(board_state -> piece_v[i]);
 }
