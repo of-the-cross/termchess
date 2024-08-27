@@ -1,7 +1,27 @@
 #include "panic.h"
+#include "instant_input.h"
+#include "term_painter.h"
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
+
+/*
+  General debugging abort function. It exits while giving
+  an error message and tells you what function it exited
+  from.
+ */
+void
+pn_panic(const char* errmsg,
+		 const char func_name[])
+{
+	PN_SCREEN_WIPE;
+	PN_CURSOR_TO_HOME;
+	printf("Fatal Error in %s: ", func_name);
+	printf("%s\n", errmsg);
+	printf("Press any key to exit.\n");
+	ii_next_char();
+	exit(-1);
+}
 
 /*
   panic malloc function
@@ -9,14 +29,22 @@
   (that is to say, if malloc fails) then the program exits
  */
 void*
-pn_malloc(size_t size)
+pn_malloc(size_t size,
+		  const char func_name[])
 {
 	void* ptr = malloc(size);
+	
 	if (ptr == NULL)
-	{
-		fprintf(stderr, "FATAL ERROR: ");
-		fprintf(stderr, "malloc failed.\n");
-		exit(1);
-	}
+		pn_panic("malloc failed.", func_name);
+	
 	return ptr;
+}
+
+void
+pn_flag(int flag,
+		const char* errmsg,
+		const char func_name[])
+{
+	if (flag)
+		pn_panic(errmsg, func_name);
 }

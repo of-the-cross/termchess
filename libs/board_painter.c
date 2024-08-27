@@ -68,6 +68,7 @@ tc_print_board(void)
 		print_free_spaces();
 		print_horizontal_line();
 	}
+	printf("\nHit ESC key to exit.");
 }
 
 /*
@@ -77,39 +78,40 @@ tc_print_board(void)
 void
 print_raw_piece(tc_piece_inst piece)
 {
+#define EMPTY_PIECE (tc_piece_color) (tc_black)
 	switch (piece.type) {
 	case tc_pawn:
-		if (piece.color == tc_white)
+		if (piece.color == EMPTY_PIECE)
 			printf("♙");
 		else
 			printf("♟");
 		break;
 	case tc_bishop:
-		if (piece.color == tc_white)
+		if (piece.color == EMPTY_PIECE)
 			printf("♗");
 		else
 			printf("♝");
 		break;
 	case tc_knight:
-		if (piece.color == tc_white)
+		if (piece.color == EMPTY_PIECE)
 			printf("♘");
 		else
 			printf("♞");
 		break;
 	case tc_rook:
-		if (piece.color == tc_white)
+		if (piece.color == EMPTY_PIECE)
 			printf("♖");
 		else
 			printf("♜");
 		break;
 	case tc_queen:
-		if (piece.color == tc_white)
+		if (piece.color == EMPTY_PIECE)
 			printf("♕");
 		else
 			printf("♛");
 		break;
 	case tc_king:
-		if (piece.color == tc_white)
+		if (piece.color == EMPTY_PIECE)
 			printf("♔");
 		else
 			printf("♚");
@@ -122,8 +124,11 @@ print_raw_piece(tc_piece_inst piece)
   terminal row managed by graphics.
  */
 size_t
-chessrow_to_termrow(size_t row)
+chessrow_to_termrow(size_t row,
+					tc_piece_color color)
 {
+	if (color == tc_white)
+		row = TC_ROW_SIZE - row - 1;
 	row *= 2;
 	row += 2;
 	return row;
@@ -133,8 +138,12 @@ chessrow_to_termrow(size_t row)
   Convert a chess column managed by game logic to a
   terminal column managed by graphics.
  */
-size_t chesscol_to_termcol(size_t col)
+size_t chesscol_to_termcol(size_t col,
+						   tc_piece_color color)
 {
+	if (color == tc_black)
+		col = TC_COL_SIZE - col - 1;
+	
 	col *= 4;
 	col += 3;
 	return col;
@@ -145,10 +154,11 @@ size_t chesscol_to_termcol(size_t col)
   move the cursor to its graphical position in the terminal.
  */
 void
-tc_cursor_to_square(tc_square square)
+tc_cursor_to_square(tc_square square,
+					tc_piece_color color)
 {
-	size_t row = chessrow_to_termrow(square.row);
-	size_t col = chesscol_to_termcol(square.col);
+	size_t row = chessrow_to_termrow(square.row, color);
+	size_t col = chesscol_to_termcol(square.col, color);
 	pn_cursor_to(row, col);
 }
 
@@ -158,9 +168,10 @@ tc_cursor_to_square(tc_square square)
   process discussed above.
  */
 void
-tc_print_placed_piece(tc_piece_inst piece)
+tc_print_placed_piece(tc_piece_inst piece,
+					  tc_piece_color color)
 {
-	tc_cursor_to_square(piece.location);
+	tc_cursor_to_square(piece.location, color);
 	print_raw_piece(piece);
 }
 
@@ -170,9 +181,10 @@ tc_print_placed_piece(tc_piece_inst piece)
   discussed above.
  */
 void
-tc_empty_square(tc_square square)
+tc_empty_square(tc_square square,
+				tc_piece_color color)
 {
-	tc_cursor_to_square(square);
+	tc_cursor_to_square(square, color);
 	putchar(' ');
 }
 
@@ -182,10 +194,11 @@ tc_empty_square(tc_square square)
   or everything will look funky.
  */
 void
-tc_print_pieces(tc_board_state* board_state)
+tc_print_pieces(tc_board_state* board_state,
+				tc_piece_color color)
 {
 	size_t piece_count = board_state -> piece_size;
 
 	for (size_t i = 0; i < piece_count; ++i)
-		tc_print_placed_piece(board_state -> piece_v[i]);
+		tc_print_placed_piece(board_state -> piece_v[i], color);
 }

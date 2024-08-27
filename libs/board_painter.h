@@ -16,19 +16,30 @@ tc_print_board(void);
   or everything will look funky.
  */
 void
-tc_print_pieces(tc_board_state* board_state);
+tc_print_pieces(tc_board_state* board_state,
+				tc_piece_color color);
 
 /*
   Print a piece instance with its proper symbol on its
   proper square.
  */
 void
-tc_print_placed_piece(tc_piece_inst piece);
+tc_print_placed_piece(tc_piece_inst piece,
+					  tc_piece_color color);
 
 /*
   Print whitespace over some defined square in the terminal.
  */
 void
-tc_empty_square(tc_square square);
+tc_empty_square(tc_square square,
+				tc_piece_color color);
+
+/*
+  Move cursor to its equivalent graphical location in the
+  terminal.
+ */
+void
+tc_cursor_to_square(tc_square square,
+					tc_piece_color color);
 
 #endif

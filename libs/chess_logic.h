@@ -6,5 +6,8 @@
 tc_board_state
 tc_new_default_board(void);
 
+void
+tc_pawn_e4_move(tc_board_state* board);
+
 #endif
 	

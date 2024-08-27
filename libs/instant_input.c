@@ -75,7 +75,7 @@ int initialized = 0;
   call this function.
 */
 void
-termmode_load_original()
+termmode_load_original(void)
 { tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios); }
 
 /*
@@ -84,7 +84,7 @@ termmode_load_original()
   have lasting effects on a terminal throughout a session.
 */
 void
-termmode_save_original()
+termmode_save_original(void)
 {
   tcgetattr(STDIN_FILENO, &orig_termios);
   used_termios = orig_termios;
@@ -96,7 +96,7 @@ termmode_save_original()
   the actual terminal. Must be called for changes to set.
 */
 void
-termmode_set_modes()
+termmode_set_modes(void)
 { tcsetattr(STDIN_FILENO, TCSAFLUSH, &used_termios); }
 
 /*
@@ -104,7 +104,7 @@ termmode_set_modes()
   with termmode_set_modes() first.
 */
 void
-termmode_raw()
+termmode_raw(void)
 { used_termios.c_lflag &= ~ECHO; }
 
 /*
@@ -112,7 +112,7 @@ termmode_raw()
   termmode_set_modes() first.
 */
 void
-termmode_nonraw()
+termmode_nonraw(void)
 { used_termios.c_lflag |= ECHO; }
 
 /*
@@ -120,7 +120,7 @@ termmode_nonraw()
   Must be set with termmode_set_modes() first.
 */
 void
-termmode_canon()
+termmode_canon(void)
 { used_termios.c_lflag |= ICANON; }
 
 /*
@@ -128,7 +128,7 @@ termmode_canon()
   Must be set with termmode_set_modes() first.
 */
 void
-termmode_noncanon()
+termmode_noncanon(void)
 { used_termios.c_lflag &= ~ICANON; }
 
 /*

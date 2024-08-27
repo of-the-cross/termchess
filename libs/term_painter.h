@@ -40,7 +40,7 @@ pn_general_init(void)
 	PN_SCREEN_WIPE;
 	
 	PN_CURSOR_TO_HOME;
-	PN_CURSOR_INVISIBLE;
+	//	PN_CURSOR_INVISIBLE;
 }
 
 /*
