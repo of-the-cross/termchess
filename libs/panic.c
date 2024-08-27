@@ -14,8 +14,8 @@ void
 pn_panic(const char* errmsg,
 		 const char func_name[])
 {
-	PN_SCREEN_WIPE;
-	PN_CURSOR_TO_HOME;
+	TP_SCREEN_WIPE;
+	TP_CURSOR_TO_HOME;
 	printf("Fatal Error in %s: ", func_name);
 	printf("%s\n", errmsg);
 	printf("Press any key to exit.\n");
@@ -40,6 +40,10 @@ pn_malloc(size_t size,
 	return ptr;
 }
 
+/*
+  Panic when some flag is on, or is anything except 0.
+  This is used for errno's and error flags.
+ */
 void
 pn_flag(int flag,
 		const char* errmsg,

@@ -2,6 +2,7 @@
 #define TC_CHESS_DEFINITIONS_H
 
 #include <stddef.h>
+
 #define TC_COL_SIZE 8
 
 typedef enum

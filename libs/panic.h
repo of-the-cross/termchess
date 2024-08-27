@@ -25,6 +25,10 @@ pn_malloc(size_t size,
 
 #define PN_MALLOC(size) pn_malloc(size, __func__)
 
+/*
+  Panic when some flag is on, or is anything except 0.
+  This is used for errno's and error flags.
+ */
 void
 pn_flag(int flag,
 		const char* errmsg,

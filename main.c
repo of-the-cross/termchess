@@ -7,7 +7,7 @@ int
 main(void)
 {
 	ii_init();
-	pn_general_setup();
+	tp_general_setup();
 	tc_print_board();
 
 	struct sessioninfo my_session = tc_new_default_session();

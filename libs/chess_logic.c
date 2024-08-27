@@ -3,22 +3,13 @@
 #include "panic.h"
 #include <string.h>
 
-#define TC_BOARD_SIZE (TC_ROW_SIZE * TC_COL_SIZE)
-
-/*
-typedef struct
-{
-	unsigned int historyc;
-	tc_move* historyv;
-	unsigned int history_count;
-	tc_piece_inst* piece_place;
-} tc_board_state;
-*/
-
 #define INIT_HISTORY_ALLOC 32
 #define INIT_PLACEMENT_ALLOC 32
 
-static tc_piece_inst default_placement[TC_BOARD_SIZE] =
+#define TC_DEFAULT_PIECE_COUNT 32
+
+/* This is the default starting position in chess games */
+static tc_piece_inst default_placement[TC_DEFAULT_PIECE_COUNT] =
 {
 	/* White */
 	
@@ -61,7 +52,6 @@ static tc_piece_inst default_placement[TC_BOARD_SIZE] =
 	{ tc_pawn, tc_black, {tc_h, tc_7}},
 };
 
-#define TC_DEFAULT_PIECE_COUNT 32
 
 /*
   Perform a copy on a tc_piece_inst* (array) type given some size.
@@ -80,6 +70,11 @@ pvcpy_unsafe(const tc_piece_inst* from,
 	}
 }
 
+/*
+  Returns a tc_board_state with 0 moves (no history) with the
+  default number of pieces and all the pieces in their default
+  starting position
+ */
 tc_board_state
 tc_new_default_board(void)
 {
@@ -158,15 +153,4 @@ index_from_square(const tc_board_state* board,
 	}
 	*errflag = 1;
 	return 0;
-}
-
-void
-tc_pawn_e4_move(tc_board_state* board)
-{
-	int errflag;
-	tc_square square_e2 = {tc_e, tc_2};
-	tc_square square_e4 = {tc_e, tc_4};
-	size_t pawn_e2 = index_from_square(board, &square_e2, &errflag);
-	PN_FLAG(errflag, "Couldn't find!");
-	move_piece(board, pawn_e2, square_e4);
 }
