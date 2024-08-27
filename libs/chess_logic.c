@@ -103,25 +103,6 @@ tc_new_default_board(void)
 }
 
 /*
-  Extremely raw function that moves some piece from one square
-  to another square. It accesses pieces by index, meaning that
-  it WILL get a piece (if it doesn't overflow) and rewrite
-  that piece's location. Will only be called in this file.
-
-  Parent function needs to ensure that index is not greater
-  than board -> piece_size. If index is greater than piece_max,
-  it might crash the program. If index is greater than piece_size,
-  it will give nonsense results.
- */
-static void
-move_piece(const tc_board_state* board,
-		   size_t index,
-		   tc_square to_square)
-{
-	board -> piece_v[index].location = to_square;
-}
-
-/*
   Check if two tc_squares point to the same square.
  */
 int
@@ -139,10 +120,10 @@ tc_square_equals(const tc_square* sqr1, const tc_square* sqr2)
   the index is set to 0 and the inputted error flag is set
   to one.
  */
-static size_t
-index_from_square(const tc_board_state* board,
-				  const tc_square* square,
-				  int* errflag)
+size_t
+tc_index_square(const tc_board_state* board,
+					 const tc_square* square,
+					 int* errflag)
 {
 	tc_square* current_square;
 	for (size_t i = 0; i < board -> piece_size; ++i)
@@ -153,4 +134,27 @@ index_from_square(const tc_board_state* board,
 	}
 	*errflag = 1;
 	return 0;
+}
+
+
+/*
+  Extremely raw function that moves some piece from one square
+  to another square. It accesses pieces by index, meaning that
+  it WILL get a piece (if it doesn't overflow) and rewrite
+  that piece's location. Will only be called in this file.
+
+  Parent function needs to ensure that index is not greater
+  than board -> piece_size. If index is greater than piece_max,
+  it might crash the program. If index is greater than piece_size,
+  it will give nonsense results.
+
+  Ideally, index was taken from tc_index_square, meaning that index
+  is ALWAYS a valid.
+ */
+void
+tc_piece_tp_unsafe(const tc_board_state* board,
+				   size_t index,
+				   const tc_square* to_square)
+{
+	board -> piece_v[index].location = *to_square;
 }

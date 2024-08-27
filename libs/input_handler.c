@@ -3,6 +3,7 @@
 #include "chess_defs.h"
 #include "chess_logic.h"
 #include "instant_input.h"
+#include "kbmacros.h"
 #include <ctype.h>
 
 /*
@@ -123,7 +124,53 @@ tc_move_right(struct sessioninfo* si)
 	si -> current_square.col += 1;
 }
 
-// ######################### MOVEMENT FUNCTIONS #########################
+// ######################### END OF MOVEMENT FUNCS #########################
+
+/*
+  Big mama of a function. Handles anything and everything to do with
+  movement. If a square which contains a piece is selected, and then
+  another square is selected, the location (member variable) of that
+  piece on that square gets mutated to be that second square.
+
+  Call this function when the user wishes to select a tile.
+ */
+static void
+tc_select_square(struct sessioninfo* si)
+{
+	enum select_type
+		{
+			NOTHING_SELECTED,
+			PIECE_SELECTED,
+		};
+	
+	static enum select_type select_state = NOTHING_SELECTED;
+	static size_t selected_piece;
+	static tc_square selected_square;
+
+	if (select_state == NOTHING_SELECTED)
+	{
+		int empty_square_flag = 0;
+		selected_piece = tc_index_square(&(si -> board),
+										 &(si -> current_square),
+										 &empty_square_flag);
+		selected_square = si -> current_square;
+		
+		if (empty_square_flag)
+			return;
+
+		select_state = PIECE_SELECTED;
+	}
+	else
+	{
+		tc_piece_tp_unsafe(&(si -> board),
+						   selected_piece,
+						   &(si -> current_square));
+		
+		tc_empty_square(selected_square, si -> player_color);
+		
+		select_state = NOTHING_SELECTED;
+	}
+}
 
 /*
   Master function for all input handling. Given some char input
@@ -149,8 +196,11 @@ handle_input(struct sessioninfo* si, char cinput)
 	case 'D':
 		tc_move_right(si);
 		break;
-	case 27:					// Escape key
-		return 0;				// ends the game loop
+	case KB_ENTER:
+		tc_select_square(si);
+		break;
+	case KB_ESC:
+		return 0;
 	}
 	return 1;
 }

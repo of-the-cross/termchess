@@ -159,7 +159,7 @@ tc_cursor_to_square(tc_square square,
 {
 	size_t row = chessrow_to_termrow(square.row, color);
 	size_t col = chesscol_to_termcol(square.col, color);
-	pn_cursor_to(row, col);
+	tp_cursor_to(row, col);
 }
 
 /*
