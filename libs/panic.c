@@ -12,7 +12,7 @@
  */
 void
 pn_panic(const char* errmsg,
-		 const char func_name[])
+         const char func_name[])
 {
 	TP_SCREEN_WIPE;
 	TP_CURSOR_TO_HOME;
@@ -30,9 +30,27 @@ pn_panic(const char* errmsg,
  */
 void*
 pn_malloc(size_t size,
-		  const char func_name[])
+          const char func_name[])
 {
 	void* ptr = malloc(size);
+	
+	if (ptr == NULL)
+		pn_panic("malloc failed.", func_name);
+	
+	return ptr;
+}
+
+/*
+  panic realloc function
+  ALWAYS returns a non-null void pointer. If the pointer is null
+  (that is to say, if realloc fails) then the program exits
+*/
+void*
+pn_realloc(void* ptr,
+           size_t new_size,
+           const char func_name[])
+{
+	ptr = realloc(ptr, new_size);
 	
 	if (ptr == NULL)
 		pn_panic("malloc failed.", func_name);
@@ -46,8 +64,8 @@ pn_malloc(size_t size,
  */
 void
 pn_flag(int flag,
-		const char* errmsg,
-		const char func_name[])
+        const char* errmsg,
+        const char func_name[])
 {
 	if (flag)
 		pn_panic(errmsg, func_name);
