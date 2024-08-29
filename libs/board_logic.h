@@ -12,17 +12,15 @@
 tc_board_state
 tc_new_default_board(void);
 
-/*
-  Check if two tc_squares contain the same data.
- */
+/* Check if two tc_square variables point to the same square. */
 int
 tc_square_equals(const tc_square* sqr1, const tc_square* sqr2);
 
 /*
-  Find the index of a piece in the board whose location
+  Find the ID of a piece in the board whose location
   matches the square given into the function. If not found,
-  the index is set to 0 and the inputted error flag is set
-  to one.
+  the ID is set to 0 and the inputted error flag is set
+  to 1.
  */
 size_t
 tc_square_id(const tc_board_state* board,
@@ -47,27 +45,27 @@ struct tc_translate_args
   any function that takes in four parameters or more should have its
   own custom struct that holds its arguments. To interface with this:
 
-    tc_translate((tc_translate_args) {
+    tc_translate((struct tc_translate_args) {
             .square = &square,
             .drow = 1, .dcol = 1,
-            .errflag = &flag});
-
+            .errflag = &flag
+		});
  */
 void
 tc_translate(struct tc_translate_args args);
 
 /*
   Extremely raw function that moves some piece from one square
-  to another square. It accesses pieces by index, meaning that
+  to another square. It accesses pieces by ID, meaning that
   it WILL get a piece (if it doesn't overflow) and rewrite
   that piece's location.
 
-  Parent function needs to ensure that index is not greater
-  than board -> piece_size. If index is greater than piece_max,
-  it might crash the program. If index is greater than piece_size,
+  Parent function needs to ensure that ID is not greater
+  than board -> piece_size. If ID is greater than piece_max,
+  it might crash the program. If ID is greater than piece_size,
   it will give nonsense results.
 
-  Ideally, index was taken from tc_index_square, meaning that index
+  Ideally, id is taken from tc_square_id, meaning that ID
   is ALWAYS a valid.
  */
 void
@@ -83,7 +81,7 @@ tc_piece_tp_unsafe(const tc_board_state* board,
 
   Here is an example of a vector containing our pieces:
 
-  0      1      2      3      4      5      7        8        9
+  0      1      2      3      4      5      6        7        8
   +-------------------------------------------------------------------+
   | Pawn | Rook | Pawn | Pawn | King | Pawn | Bishop | Knight | Queen |
   +-------------------------------------------------------------------+
@@ -95,7 +93,7 @@ tc_piece_tp_unsafe(const tc_board_state* board,
   element in the vector.
 
   
-  0      1      2      3      4      5       7        8        9
+  0      1      2      3      4      5       6        7        8
   +-------------------------------------------------------------------+
   | Pawn | Rook | Pawn | Pawn | King | Queen | Bishop | Knight | Pawn |
   +-------------------------------------------------------------------+
@@ -108,7 +106,7 @@ tc_piece_tp_unsafe(const tc_board_state* board,
   After we have done that, we will now reduce the size of the vector.
   Now the vector looks like this:
   
-  0      1      2      3      4      5       7        8
+  0      1      2      3      4      5       6        7
   +------------------------------------------------------------+.......
   | Pawn | Rook | Pawn | Pawn | King | Queen | Bishop | Knight | Pawn .
   +------------------------------------------------------------+.......

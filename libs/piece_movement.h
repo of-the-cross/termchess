@@ -13,8 +13,19 @@ struct tc_valid_mov
 {
 	size_t max;
 	size_t count;
-	tc_square* arr;
+	struct
+	{
+		tc_square square;
+		char flags;
+		union
+		{
+			int id;
+			int captured_id;
+			int castled_id;
+		};
+	}* array;
 };
+
 
 /*
   prepended v_ means valid and prepended i_ means invalid. Additionally,
@@ -50,22 +61,26 @@ struct tc_mov_info
 	};
 };
 
+/* See the definition for the enum tc_mov_state */
 static inline int
 tc_is_valid_move(struct tc_mov_info move_info)
 {
 	return move_info.validity > 0;
 }
 
-// #define TC_IF_VALID_MOVE(s) if ((enum tc_mov_state) s > 0)
+/*
+  Given a piece (mover_id) and a square (to_square), this function
+  will figure out what of a move it is. Whether it's a valid move
+  or an invalid move. Whether the move is a capture, and if so,
+  what piece is getting captured.
 
+  Think of this function as a way to take an *attempt* to move
+  and turn it into information, which we can then use to figure
+  out what the game should be doing next.
+ */
 struct tc_mov_info
 tc_evaluate_move(const tc_board_state* board,
                  size_t mover_id,
                  const tc_square* to_square);
-/*
-struct tc_valid_mov
-tc_all_valid_squares(const tc_board_state* board,
-					 const tc_piece_inst* piece);
-*/
 
 #endif
