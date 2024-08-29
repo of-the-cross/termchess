@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #define TC_COL_SIZE 8
+#define TC_COL_MAX (TC_COL_SIZE - 1)
 
 typedef enum
 {
@@ -18,6 +19,7 @@ typedef enum
 } tc_col;
 
 #define TC_ROW_SIZE 8
+#define TC_ROW_MAX (TC_ROW_SIZE - 1)
 
 typedef enum
 {
@@ -52,6 +54,18 @@ typedef enum
 	tc_white,
 	tc_black,
 } tc_piece_color;
+
+static inline int
+tc_forward(tc_piece_color color)
+{
+	return color == tc_white ? 1 : -1;
+}
+
+static inline tc_piece_color
+tc_enemy_color(tc_piece_color color)
+{
+	return color == tc_white ? tc_black : tc_white;
+}
 
 typedef struct
 {

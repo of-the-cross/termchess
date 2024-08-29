@@ -1,10 +1,12 @@
 #include "input_handler.h"
 #include "board_painter.h"
 #include "chess_defs.h"
-#include "chess_logic.h"
+#include "board_logic.h"
 #include "instant_input.h"
 #include "kbmacros.h"
+#include "piece_movement.h"
 #include <ctype.h>
+#include <sys/cdefs.h>
 
 /*
   Make a session with "default" parameters, which right now
@@ -38,93 +40,53 @@ tc_repaint(struct sessioninfo* si)
 	tc_cursor_to_square(si -> current_square, si -> player_color);
 }
 
-// ######################### MOVEMENT FUNCTIONS #########################
+// ######################### CURSOR MOVEMENT FUNCTIONS #########################
 
-static void
+static inline void
 tc_move_up(struct sessioninfo* si)
 {
-	if (si -> player_color == tc_black)
-	{
-		if (si -> current_square.row <= 0)
-		{
-			si -> current_square.row = 0;
-			return;
-		}
-		si -> current_square.row -= 1;
-	}
-	
-	if (si -> current_square.row >= TC_ROW_SIZE - 1)
-	{
-		si -> current_square.row = TC_ROW_SIZE - 1;
-		return;
-	}
-	si -> current_square.row += 1;
+	tc_translate((struct tc_translate_args) {
+			.square  = &(si -> current_square),
+			.drow    = tc_forward(si -> player_color),
+			.dcol    = 0,
+			.errflag = NULL,
+		});
 }
 
-static void
+static inline void
 tc_move_left(struct sessioninfo* si)
 {
-	if (si -> player_color == tc_black)
-	{	
-		if (si -> current_square.col >= TC_COL_SIZE - 1)
-		{
-			si -> current_square.col = TC_COL_SIZE - 1;
-			return;
-		}
-		si -> current_square.col += 1;
-	}
-	
-	if (si -> current_square.col <= 0)
-	{
-		si -> current_square.col = 0;
-		return;
-	}
-	si -> current_square.col -= 1;
+	tc_translate((struct tc_translate_args) {
+			.square  = &(si -> current_square),
+			.drow    = 0,
+			.dcol    = -tc_forward(si -> player_color),
+			.errflag = NULL,
+		});
 }
 
-static void
+static inline void
 tc_move_down(struct sessioninfo* si)
 {
-	if (si -> player_color == tc_black)
-	{
-		if (si -> current_square.row >= TC_ROW_SIZE - 1)
-		{
-			si -> current_square.row = TC_ROW_SIZE - 1;
-			return;
-		}
-		si -> current_square.row += 1;
-	}
-	
-	if (si -> current_square.row <= 0)
-	{
-		si -> current_square.row = 0;
-		return;
-	}
-	si -> current_square.row -= 1;
+	tc_translate((struct tc_translate_args) {
+			.square  = &(si -> current_square),
+			.drow    = -tc_forward(si -> player_color),
+			.dcol    = 0,
+			.errflag = NULL,
+		});
 }
 
-static void
+static inline void
 tc_move_right(struct sessioninfo* si)
 {
-	if (si -> player_color == tc_black)
-	{
-		if (si -> current_square.col <= 0)
-		{
-			si -> current_square.col = 0;
-			return;
-		}
-		si -> current_square.col -= 1;
-	}
-	
-	if (si -> current_square.col >= TC_COL_SIZE - 1)
-	{
-		si -> current_square.col = TC_COL_SIZE - 1;
-		return;
-	}
-	si -> current_square.col += 1;
+	tc_translate((struct tc_translate_args) {
+			.square  = &(si -> current_square),
+			.drow    = 0,
+			.dcol    = tc_forward(si -> player_color),
+			.errflag = NULL,
+		});
 }
 
-// ######################### END OF MOVEMENT FUNCS #########################
+// ######################### END CURSOR MOVEMENT FUNCS #########################
 
 /*
   Big mama of a function. Handles anything and everything to do with
@@ -150,9 +112,9 @@ tc_select_square(struct sessioninfo* si)
 	if (select_state == NOTHING_SELECTED)
 	{
 		int empty_square_flag = 0;
-		selected_piece = tc_index_square(&(si -> board),
-										 &(si -> current_square),
-										 &empty_square_flag);
+		selected_piece = tc_square_id(&(si -> board),
+									  &(si -> current_square),
+									  &empty_square_flag);
 		selected_square = si -> current_square;
 		
 		if (empty_square_flag)
@@ -162,12 +124,22 @@ tc_select_square(struct sessioninfo* si)
 	}
 	else
 	{
-		tc_piece_tp_unsafe(&(si -> board),
-						   selected_piece,
-						   &(si -> current_square));
+		struct tc_mov_info move_info;
+		move_info = tc_evaluate_move(&(si -> board),
+										 selected_piece,
+										 &(si -> current_square));
+
+		if (tc_is_valid_move(move_info))
+		{
+			tc_piece_tp_unsafe(&(si -> board),
+							   selected_piece,
+							   &(si -> current_square));
+			
+			if (move_info.validity == v_OPP_CAPTURE)
+				tc_kill_unsafe(&(si -> board), move_info.captured_id);
 		
-		tc_empty_square(selected_square, si -> player_color);
-		
+			tc_empty_square(selected_square, si -> player_color);
+		}
 		select_state = NOTHING_SELECTED;
 	}
 }

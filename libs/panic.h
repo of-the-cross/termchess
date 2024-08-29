@@ -35,7 +35,7 @@ pn_realloc(void* ptr,
            size_t new_size,
            const char func_name[]);
 
-#define PN_REALLOC(size) pn_realloc(size, __func__)
+#define PN_REALLOC(ptr, new_size) pn_realloc(ptr, new_size, __func__)
 
 /*
   Panic when some flag is on (or, if some int is any value except 0).

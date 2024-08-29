@@ -175,10 +175,10 @@ ii_next_char(void)
 void
 ii_init(void)
 {
-  termmode_save_original();
-  termmode_raw();
-  termmode_noncanon();
-  termmode_set_modes();
+	termmode_save_original();
+	termmode_raw();
+	termmode_noncanon();
+	termmode_set_modes();
   
-  next_char_func = &initialized_read;
+	next_char_func = &initialized_read;
 }

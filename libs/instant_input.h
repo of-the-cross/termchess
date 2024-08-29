@@ -15,14 +15,4 @@ ii_init(void);
 char
 ii_next_char(void);
 
-/*
-  Undo ii_init. This turns the terminal from an instant-input
-  terminal to a regular terminal that requires newlines for inputs
-  to be read. This doesn't need to be called, as ii_init ensures
-  that termmode_load_original runs at exit (atexit function) but
-  this may be called regardless.
- */
-void
-termmode_load_original(void);
-
 #endif

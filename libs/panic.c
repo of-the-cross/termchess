@@ -53,7 +53,7 @@ pn_realloc(void* ptr,
 	ptr = realloc(ptr, new_size);
 	
 	if (ptr == NULL)
-		pn_panic("malloc failed.", func_name);
+		pn_panic("realloc failed.", func_name);
 	
 	return ptr;
 }

@@ -1,4 +1,4 @@
-#include "chess_logic.h"
+#include "board_logic.h"
 #include "chess_defs.h"
 #include "panic.h"
 #include <string.h>
@@ -60,14 +60,12 @@ static tc_piece_inst default_placement[TC_DEFAULT_PIECE_COUNT] =
   this for loop doesn't overflow!
  */
 void
-pvcpy_unsafe(const tc_piece_inst* from,
-			 tc_piece_inst* to,
-			 size_t size)
+piece_array_copy(const tc_piece_inst* from,
+                 tc_piece_inst* to,
+                 size_t size)
 {
-	for (size_t i = 0; i < size; ++i)
-	{
-		to[i] = from[i];
-	}
+	for (size_t id = 0; id < size; ++id)
+		to[id] = from[id];
 }
 
 /*
@@ -85,10 +83,10 @@ tc_new_default_board(void)
 	
 	size_t piece_max       = INIT_PLACEMENT_ALLOC;
 	size_t piece_size      = TC_DEFAULT_PIECE_COUNT;
-	tc_piece_inst* piece_v = PN_MALLOC(sizeof(tc_piece_inst)
-									   * INIT_PLACEMENT_ALLOC);
+	tc_piece_inst* piece_v = PN_MALLOC(sizeof(tc_piece_inst) *
+									   INIT_PLACEMENT_ALLOC);
 
-	pvcpy_unsafe(default_placement, piece_v, TC_DEFAULT_PIECE_COUNT);
+	piece_array_copy(default_placement, piece_v, TC_DEFAULT_PIECE_COUNT);
 	
 	return (tc_board_state)
 		{
@@ -102,9 +100,7 @@ tc_new_default_board(void)
 	  };
 }
 
-/*
-  Check if two tc_squares point to the same square.
- */
+/* Check if two tc_square data point to the same square */
 int
 tc_square_equals(const tc_square* sqr1, const tc_square* sqr2)
 {
@@ -121,40 +117,77 @@ tc_square_equals(const tc_square* sqr1, const tc_square* sqr2)
   to one.
  */
 size_t
-tc_index_square(const tc_board_state* board,
-					 const tc_square* square,
-					 int* errflag)
+tc_square_id(const tc_board_state* board,
+             const tc_square* square,
+             int* errflag)
 {
 	tc_square* current_square;
-	for (size_t i = 0; i < board -> piece_size; ++i)
+	for (size_t id = 0; id < board -> piece_size; ++id)
 	{
-		current_square = &(board -> piece_v[i].location);
+		current_square = &(board -> piece_v[id].location);
 		if (tc_square_equals(current_square, square))
-			return i;
+			return id;
 	}
 	*errflag = 1;
 	return 0;
 }
 
+/*
+  To kill a piece, just swap that piece with the last piece in
+  board -> piece_v and reduce the size of the vector by 1.
+ */
+void
+tc_kill_unsafe(tc_board_state* board, size_t id)
+{
+	tc_piece_inst in_between = board -> piece_v[id];
+	
+	board -> piece_v[id] = board -> piece_v[board -> piece_size - 1];
+	board -> piece_v[board -> piece_size - 1] = in_between;
+	--(board -> piece_size);
+}
 
 /*
   Extremely raw function that moves some piece from one square
   to another square. It accesses pieces by index, meaning that
   it WILL get a piece (if it doesn't overflow) and rewrite
-  that piece's location. Will only be called in this file.
+  that piece's location.
 
   Parent function needs to ensure that index is not greater
   than board -> piece_size. If index is greater than piece_max,
   it might crash the program. If index is greater than piece_size,
   it will give nonsense results.
 
-  Ideally, index was taken from tc_index_square, meaning that index
+  Ideally, index was taken from tc_square_id, meaning that index
   is ALWAYS a valid.
  */
 void
 tc_piece_tp_unsafe(const tc_board_state* board,
-				   size_t index,
-				   const tc_square* to_square)
+                   size_t id,
+                   const tc_square* to_square)
 {
-	board -> piece_v[index].location = *to_square;
+	board -> piece_v[id].location = *to_square;
+}
+
+/*
+  Translates a tc_square type by some given displacement.
+  If this translation results in an invalid square---which is
+  to say, a square which is out of bounds---the square is left
+  unchanged and the errflag is raised.
+ */
+void
+tc_translate(struct tc_translate_args args)
+{
+	int final_col = args.square -> col + args.dcol;
+	int final_row = args.square -> row + args.drow;
+
+	if (final_col < 0 || final_col > TC_COL_MAX ||
+		final_row < 0 || final_row > TC_ROW_MAX)
+	{
+		if (args.errflag != NULL)
+			*(args.errflag) = 1;
+		return;
+	}
+
+	args.square -> col = final_col;
+	args.square -> row = final_row;
 }

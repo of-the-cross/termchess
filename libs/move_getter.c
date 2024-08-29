@@ -94,7 +94,7 @@ parse_row(char c, int* m_errno)
   Using the player's key strokes, determine a plausible move attempt.
   A move usually looks something like Ne6, or knight to e6.
                                       ~~~
-									    |
+                                        |
    +-+-+--------------------------------+
    | | |
    | | +- N -> Knight     -> piece

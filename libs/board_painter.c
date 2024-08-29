@@ -125,7 +125,7 @@ print_raw_piece(tc_piece_inst piece)
  */
 size_t
 chessrow_to_termrow(size_t row,
-					tc_piece_color color)
+                    tc_piece_color color)
 {
 	if (color == tc_white)
 		row = TC_ROW_SIZE - row - 1;
@@ -139,7 +139,7 @@ chessrow_to_termrow(size_t row,
   terminal column managed by graphics.
  */
 size_t chesscol_to_termcol(size_t col,
-						   tc_piece_color color)
+                           tc_piece_color color)
 {
 	if (color == tc_black)
 		col = TC_COL_SIZE - col - 1;
@@ -155,7 +155,7 @@ size_t chesscol_to_termcol(size_t col,
  */
 void
 tc_cursor_to_square(tc_square square,
-					tc_piece_color color)
+                    tc_piece_color color)
 {
 	size_t row = chessrow_to_termrow(square.row, color);
 	size_t col = chesscol_to_termcol(square.col, color);
@@ -169,7 +169,7 @@ tc_cursor_to_square(tc_square square,
  */
 void
 tc_print_placed_piece(tc_piece_inst piece,
-					  tc_piece_color color)
+                      tc_piece_color color)
 {
 	tc_cursor_to_square(piece.location, color);
 	print_raw_piece(piece);
@@ -182,7 +182,7 @@ tc_print_placed_piece(tc_piece_inst piece,
  */
 void
 tc_empty_square(tc_square square,
-				tc_piece_color color)
+                tc_piece_color color)
 {
 	tc_cursor_to_square(square, color);
 	putchar(' ');
@@ -195,7 +195,7 @@ tc_empty_square(tc_square square,
  */
 void
 tc_print_pieces(tc_board_state* board_state,
-				tc_piece_color color)
+                tc_piece_color color)
 {
 	size_t piece_count = board_state -> piece_size;
 
