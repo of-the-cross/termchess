@@ -29,10 +29,10 @@ tc_square_id(const tc_board_state* board,
 
 struct tc_translate_args
 {
-	tc_square* square;
-	int drow;
-	int dcol;
-	int* errflag;
+    tc_square* square;
+    int drow;
+    int dcol;
+    int* errflag;
 };
 
 /*
@@ -49,7 +49,7 @@ struct tc_translate_args
             .square = &square,
             .drow = 1, .dcol = 1,
             .errflag = &flag
-		});
+        });
  */
 void
 tc_translate(struct tc_translate_args args);

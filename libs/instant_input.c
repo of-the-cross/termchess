@@ -12,7 +12,7 @@
      terminal input and output characters is disabled.
 
      Therefore disabling ECHO by way of
-     	termios_p -> c_iflag &= ~ECHO
+        termios_p -> c_iflag &= ~ECHO
      will ensure that what the user types will not be shown.
 
      --------------------------------------------------------------
@@ -138,9 +138,9 @@ termmode_noncanon(void)
 char
 uninitialized_read(void)
 {
-	fprintf(stderr, "FATAL ERROR: ");
-	fprintf(stderr, "Call ii_init() first before calling ii_next_char()\n");
-	exit(-1);
+    fprintf(stderr, "FATAL ERROR: ");
+    fprintf(stderr, "Call ii_init() first before calling ii_next_char()\n");
+    exit(-1);
 }
 
 /*
@@ -150,7 +150,7 @@ uninitialized_read(void)
 char
 initialized_read(void)
 {
-	return fgetc(stdin);
+    return fgetc(stdin);
 }
 
 /*
@@ -165,7 +165,7 @@ char (*next_char_func)(void) = &uninitialized_read;
 char
 ii_next_char(void)
 {
-	return (*next_char_func)();
+    return (*next_char_func)();
 }
 
 /*
@@ -175,10 +175,10 @@ ii_next_char(void)
 void
 ii_init(void)
 {
-	termmode_save_original();
-	termmode_raw();
-	termmode_noncanon();
-	termmode_set_modes();
+    termmode_save_original();
+    termmode_raw();
+    termmode_noncanon();
+    termmode_set_modes();
   
-	next_char_func = &initialized_read;
+    next_char_func = &initialized_read;
 }

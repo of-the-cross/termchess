@@ -11,8 +11,8 @@
 
 #define TP_ESC_CHAR ((char) 27)
 #define TP_ESC(...) \
-	printf("%c", 27);							\
-	printf(__VA_ARGS__)
+    printf("%c", 27);                           \
+    printf(__VA_ARGS__)
 
 #define TP_CURSOR_TO_HOME     TP_ESC("[H")
 #define TP_CURSOR_INVISIBLE   TP_ESC("[?25l")
@@ -29,18 +29,18 @@
 static inline void
 tp_general_init(void)
 {
-	if (!isatty(STDOUT_FILENO))
-	{
-		fprintf(stderr, "FATAL ERROR: ");
-		fprintf(stderr, "Output is not a terminal.\n");
-		exit(-1);
-	}
-	
-	TP_ALT_BUFFER_ENABLE;
-	TP_SCREEN_WIPE;
-	
-	TP_CURSOR_TO_HOME;
-	//	TP_CURSOR_INVISIBLE;
+    if (!isatty(STDOUT_FILENO))
+    {
+        fprintf(stderr, "FATAL ERROR: ");
+        fprintf(stderr, "Output is not a terminal.\n");
+        exit(-1);
+    }
+    
+    TP_ALT_BUFFER_ENABLE;
+    TP_SCREEN_WIPE;
+    
+    TP_CURSOR_TO_HOME;
+    //  TP_CURSOR_INVISIBLE;
 }
 
 /*
@@ -49,8 +49,8 @@ tp_general_init(void)
 static inline void
 tp_general_cleanup(void)
 {
-	TP_CURSOR_VISIBLE;
-	TP_ALT_BUFFER_DISABLE;
+    TP_CURSOR_VISIBLE;
+    TP_ALT_BUFFER_DISABLE;
 }
 
 /*
@@ -60,8 +60,8 @@ tp_general_cleanup(void)
 static inline void
 tp_general_setup(void)
 {
-	tp_general_init();
-	atexit(tp_general_cleanup);
+    tp_general_init();
+    atexit(tp_general_cleanup);
 }
 
 /*
@@ -70,7 +70,7 @@ tp_general_setup(void)
 static inline void
 tp_cursor_to(size_t line, size_t column)
 {
-	TP_ESC("[%lu;%luH", (size_t) line, (size_t) column);
+    TP_ESC("[%lu;%luH", (size_t) line, (size_t) column);
 }
 
 #define TP_CURSOR_TO(line, column) TP_ESC("[%lu;%luH", (size_t) line, (size_t) column)

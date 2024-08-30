@@ -11,19 +11,19 @@
  */
 struct tc_moveset
 {
-	size_t max;
-	size_t count;
-	struct
-	{
-		tc_square square;
-		char flags;
-		union
-		{
-			int id;
-			int captured_id;
-			int castled_id;
-		};
-	}* array;
+    size_t max;
+    size_t count;
+    struct
+    {
+        tc_square square;
+        char flags;
+        union
+        {
+            int id;
+            int captured_id;
+            int castled_id;
+        };
+    }* array;
 };
 
 
@@ -34,13 +34,13 @@ struct tc_moveset
  */
 enum tc_move_type
 {
-	v_EMPTY_SQUARE    = 1,
-	v_OPP_CAPTURE     = 2,
-	v_CASTLE          = 3,
-	
-	i_INVALID_SQUARE  = -1,
-	i_OWN_CAPTURE     = -2,
-	i_CHECK_NEGLECTED = -3,
+    v_EMPTY_SQUARE    = 1,
+    v_OPP_CAPTURE     = 2,
+    v_CASTLE          = 3,
+    
+    i_INVALID_SQUARE  = -1,
+    i_OWN_CAPTURE     = -2,
+    i_CHECK_NEGLECTED = -3,
 };
 
 /*
@@ -52,20 +52,20 @@ enum tc_move_type
  */
 struct tc_move_info
 {
-	enum tc_move_type type;
-	union
-	{
-		int id;
-		int captured_id;
-		int rook_id;
-	};
+    enum tc_move_type type;
+    union
+    {
+        int id;
+        int captured_id;
+        int rook_id;
+    };
 };
 
 /* See the definition for the enum tc_move_type */
 static inline int
 tc_is_valid_move(struct tc_move_info move_info)
 {
-	return move_info.type > 0;
+    return move_info.type > 0;
 }
 
 /*

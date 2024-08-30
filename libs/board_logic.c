@@ -11,45 +11,45 @@
 /* This is the default starting position in chess games */
 static tc_piece_inst default_placement[TC_DEFAULT_PIECE_COUNT] =
 {
-	/* White */
-	
-	{ tc_rook   , tc_white, {tc_a, tc_1}},
-	{ tc_knight , tc_white, {tc_b, tc_1}},
-	{ tc_bishop , tc_white, {tc_c, tc_1}},
-	{ tc_queen  , tc_white, {tc_d, tc_1}},
-	{ tc_king   , tc_white, {tc_e, tc_1}},
-	{ tc_bishop , tc_white, {tc_f, tc_1}},
-	{ tc_knight , tc_white, {tc_g, tc_1}},
-	{ tc_rook   , tc_white, {tc_h, tc_1}},
-	
-	{ tc_pawn, tc_white, {tc_a, tc_2}},
-	{ tc_pawn, tc_white, {tc_b, tc_2}},
-	{ tc_pawn, tc_white, {tc_c, tc_2}},
-	{ tc_pawn, tc_white, {tc_d, tc_2}},
-	{ tc_pawn, tc_white, {tc_e, tc_2}},
-	{ tc_pawn, tc_white, {tc_f, tc_2}},
-	{ tc_pawn, tc_white, {tc_g, tc_2}},
-	{ tc_pawn, tc_white, {tc_h, tc_2}},
+    /* White */
+    
+    { tc_rook   , tc_white, {tc_a, tc_1}},
+    { tc_knight , tc_white, {tc_b, tc_1}},
+    { tc_bishop , tc_white, {tc_c, tc_1}},
+    { tc_queen  , tc_white, {tc_d, tc_1}},
+    { tc_king   , tc_white, {tc_e, tc_1}},
+    { tc_bishop , tc_white, {tc_f, tc_1}},
+    { tc_knight , tc_white, {tc_g, tc_1}},
+    { tc_rook   , tc_white, {tc_h, tc_1}},
+    
+    { tc_pawn, tc_white, {tc_a, tc_2}},
+    { tc_pawn, tc_white, {tc_b, tc_2}},
+    { tc_pawn, tc_white, {tc_c, tc_2}},
+    { tc_pawn, tc_white, {tc_d, tc_2}},
+    { tc_pawn, tc_white, {tc_e, tc_2}},
+    { tc_pawn, tc_white, {tc_f, tc_2}},
+    { tc_pawn, tc_white, {tc_g, tc_2}},
+    { tc_pawn, tc_white, {tc_h, tc_2}},
 
-	/* Black */
-	
-	{ tc_rook   , tc_black, {tc_a, tc_8}},
-	{ tc_knight , tc_black, {tc_b, tc_8}},
-	{ tc_bishop , tc_black, {tc_c, tc_8}},
-	{ tc_queen  , tc_black, {tc_d, tc_8}},
-	{ tc_king   , tc_black, {tc_e, tc_8}},
-	{ tc_bishop , tc_black, {tc_f, tc_8}},
-	{ tc_knight , tc_black, {tc_g, tc_8}},
-	{ tc_rook   , tc_black, {tc_h, tc_8}},
-	
-	{ tc_pawn, tc_black, {tc_a, tc_7}},
-	{ tc_pawn, tc_black, {tc_b, tc_7}},
-	{ tc_pawn, tc_black, {tc_c, tc_7}},
-	{ tc_pawn, tc_black, {tc_d, tc_7}},
-	{ tc_pawn, tc_black, {tc_e, tc_7}},
-	{ tc_pawn, tc_black, {tc_f, tc_7}},
-	{ tc_pawn, tc_black, {tc_g, tc_7}},
-	{ tc_pawn, tc_black, {tc_h, tc_7}},
+    /* Black */
+    
+    { tc_rook   , tc_black, {tc_a, tc_8}},
+    { tc_knight , tc_black, {tc_b, tc_8}},
+    { tc_bishop , tc_black, {tc_c, tc_8}},
+    { tc_queen  , tc_black, {tc_d, tc_8}},
+    { tc_king   , tc_black, {tc_e, tc_8}},
+    { tc_bishop , tc_black, {tc_f, tc_8}},
+    { tc_knight , tc_black, {tc_g, tc_8}},
+    { tc_rook   , tc_black, {tc_h, tc_8}},
+    
+    { tc_pawn, tc_black, {tc_a, tc_7}},
+    { tc_pawn, tc_black, {tc_b, tc_7}},
+    { tc_pawn, tc_black, {tc_c, tc_7}},
+    { tc_pawn, tc_black, {tc_d, tc_7}},
+    { tc_pawn, tc_black, {tc_e, tc_7}},
+    { tc_pawn, tc_black, {tc_f, tc_7}},
+    { tc_pawn, tc_black, {tc_g, tc_7}},
+    { tc_pawn, tc_black, {tc_h, tc_7}},
 };
 
 
@@ -64,8 +64,8 @@ piece_array_copy(const tc_piece_inst* from,
                  tc_piece_inst* to,
                  size_t size)
 {
-	for (size_t id = 0; id < size; ++id)
-		to[id] = from[id];
+    for (size_t id = 0; id < size; ++id)
+        to[id] = from[id];
 }
 
 /*
@@ -76,38 +76,38 @@ piece_array_copy(const tc_piece_inst* from,
 tc_board_state
 tc_new_default_board(void)
 {
-	size_t history_max     = INIT_HISTORY_ALLOC;
-	size_t history_size    = 0;
-	tc_move* history_v     = PN_MALLOC(sizeof(tc_move) *
-									   INIT_HISTORY_ALLOC);
-	
-	size_t piece_max       = INIT_PLACEMENT_ALLOC;
-	size_t piece_size      = TC_DEFAULT_PIECE_COUNT;
-	tc_piece_inst* piece_v = PN_MALLOC(sizeof(tc_piece_inst) *
-									   INIT_PLACEMENT_ALLOC);
+    size_t history_max     = INIT_HISTORY_ALLOC;
+    size_t history_size    = 0;
+    tc_move* history_v     = PN_MALLOC(sizeof(tc_move) *
+                                       INIT_HISTORY_ALLOC);
+    
+    size_t piece_max       = INIT_PLACEMENT_ALLOC;
+    size_t piece_size      = TC_DEFAULT_PIECE_COUNT;
+    tc_piece_inst* piece_v = PN_MALLOC(sizeof(tc_piece_inst) *
+                                       INIT_PLACEMENT_ALLOC);
 
-	piece_array_copy(default_placement, piece_v, TC_DEFAULT_PIECE_COUNT);
-	
-	return (tc_board_state)
-		{
-			history_max,
-			history_size,
-			history_v,
+    piece_array_copy(default_placement, piece_v, TC_DEFAULT_PIECE_COUNT);
+    
+    return (tc_board_state)
+        {
+            history_max,
+            history_size,
+            history_v,
 
-			piece_max,
-			piece_size,
-			piece_v,
-	  };
+            piece_max,
+            piece_size,
+            piece_v,
+      };
 }
 
 /* Check if two tc_square data point to the same square */
 int
 tc_square_equals(const tc_square* sqr1, const tc_square* sqr2)
 {
-	if (memcmp(sqr1, sqr2, sizeof(tc_square)) == 0)
-		return 1;
-	else
-		return 0;
+    if (memcmp(sqr1, sqr2, sizeof(tc_square)) == 0)
+        return 1;
+    else
+        return 0;
 }
 
 /*
@@ -121,15 +121,15 @@ tc_square_id(const tc_board_state* board,
              const tc_square* square,
              int* errflag)
 {
-	tc_square* current_square;
-	for (size_t id = 0; id < board -> piece_size; ++id)
-	{
-		current_square = &(board -> piece_v[id].location);
-		if (tc_square_equals(current_square, square))
-			return id;
-	}
-	*errflag = 1;
-	return 0;
+    tc_square* current_square;
+    for (size_t id = 0; id < board -> piece_size; ++id)
+    {
+        current_square = &(board -> piece_v[id].location);
+        if (tc_square_equals(current_square, square))
+            return id;
+    }
+    *errflag = 1;
+    return 0;
 }
 
 /*
@@ -139,11 +139,11 @@ tc_square_id(const tc_board_state* board,
 void
 tc_kill_unsafe(tc_board_state* board, size_t id)
 {
-	tc_piece_inst in_between = board -> piece_v[id];
-	
-	board -> piece_v[id] = board -> piece_v[board -> piece_size - 1];
-	board -> piece_v[board -> piece_size - 1] = in_between;
-	--(board -> piece_size);
+    tc_piece_inst in_between = board -> piece_v[id];
+    
+    board -> piece_v[id] = board -> piece_v[board -> piece_size - 1];
+    board -> piece_v[board -> piece_size - 1] = in_between;
+    --(board -> piece_size);
 }
 
 /*
@@ -165,7 +165,7 @@ tc_piece_tp_unsafe(const tc_board_state* board,
                    size_t id,
                    const tc_square* to_square)
 {
-	board -> piece_v[id].location = *to_square;
+    board -> piece_v[id].location = *to_square;
 }
 
 /*
@@ -177,17 +177,17 @@ tc_piece_tp_unsafe(const tc_board_state* board,
 void
 tc_translate(struct tc_translate_args args)
 {
-	int final_col = args.square -> col + args.dcol;
-	int final_row = args.square -> row + args.drow;
+    int final_col = args.square -> col + args.dcol;
+    int final_row = args.square -> row + args.drow;
 
-	if (final_col < 0 || final_col > TC_COL_MAX ||
-		final_row < 0 || final_row > TC_ROW_MAX)
-	{
-		if (args.errflag != NULL)
-			*(args.errflag) = 1;
-		return;
-	}
+    if (final_col < 0 || final_col > TC_COL_MAX ||
+        final_row < 0 || final_row > TC_ROW_MAX)
+    {
+        if (args.errflag != NULL)
+            *(args.errflag) = 1;
+        return;
+    }
 
-	args.square -> col = final_col;
-	args.square -> row = final_row;
+    args.square -> col = final_col;
+    args.square -> row = final_row;
 }

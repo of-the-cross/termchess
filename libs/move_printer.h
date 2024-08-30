@@ -13,45 +13,45 @@
 /*
   Take a move attempt and print that out in the form of
       [PIECE] to [COL][ROW]
-	  
+      
   This may look for example like:
       Pawn to e4
  */
 static inline void
 tc_print_attempt(tc_move_attempt* attempt)
 {
-	switch (attempt -> piece_moved) {
-	case tc_pawn:
-		printf("Pawn");
-		break;
-	case tc_bishop:
-		printf("Bishop");
-		break;
-	case tc_knight:
-		printf("Knight");
-		break;
-	case tc_rook:
-		printf("Rook");
-		break;
-	case tc_queen:
-		printf("Queen");
-		break;
-	case tc_king:
-		printf("King");
-		break;
-	}
+    switch (attempt -> piece_moved) {
+    case tc_pawn:
+        printf("Pawn");
+        break;
+    case tc_bishop:
+        printf("Bishop");
+        break;
+    case tc_knight:
+        printf("Knight");
+        break;
+    case tc_rook:
+        printf("Rook");
+        break;
+    case tc_queen:
+        printf("Queen");
+        break;
+    case tc_king:
+        printf("King");
+        break;
+    }
 
-	printf(" to ");
+    printf(" to ");
 
-	int column = (int) attempt -> to_square.col;
-	column += 'a';
-	printf("%c", column);
+    int column = (int) attempt -> to_square.col;
+    column += 'a';
+    printf("%c", column);
 
-	int row = (int) attempt -> to_square.row;
-	row += 1;
-	printf("%d", row);
-	
-	printf("\n");
+    int row = (int) attempt -> to_square.row;
+    row += 1;
+    printf("%d", row);
+    
+    printf("\n");
 }
 
 /*
@@ -61,16 +61,16 @@ tc_print_attempt(tc_move_attempt* attempt)
 static inline int
 tc_get_n_print_attempt(void)
 {
-	tc_move_attempt move;
-	int parse_error = 0;
+    tc_move_attempt move;
+    int parse_error = 0;
 
-	move = tc_type_move_attempt(&parse_error);
-	if (parse_error)
-		return 1;
+    move = tc_type_move_attempt(&parse_error);
+    if (parse_error)
+        return 1;
 
-	tc_print_attempt(&move);
+    tc_print_attempt(&move);
 
-	return 0;
+    return 0;
 }
 
 #endif

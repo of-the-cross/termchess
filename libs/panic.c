@@ -14,13 +14,13 @@ void
 pn_panic(const char* errmsg,
          const char func_name[])
 {
-	TP_SCREEN_WIPE;
-	TP_CURSOR_TO_HOME;
-	printf("Fatal Error in %s: ", func_name);
-	printf("%s\n", errmsg);
-	printf("Press any key to exit.\n");
-	ii_next_char();
-	exit(-1);
+    TP_SCREEN_WIPE;
+    TP_CURSOR_TO_HOME;
+    printf("Fatal Error in %s: ", func_name);
+    printf("%s\n", errmsg);
+    printf("Press any key to exit.\n");
+    ii_next_char();
+    exit(-1);
 }
 
 /*
@@ -32,12 +32,12 @@ void*
 pn_malloc(size_t size,
           const char func_name[])
 {
-	void* ptr = malloc(size);
-	
-	if (ptr == NULL)
-		pn_panic("malloc failed.", func_name);
-	
-	return ptr;
+    void* ptr = malloc(size);
+    
+    if (ptr == NULL)
+        pn_panic("malloc failed.", func_name);
+    
+    return ptr;
 }
 
 /*
@@ -50,12 +50,12 @@ pn_realloc(void* ptr,
            size_t new_size,
            const char func_name[])
 {
-	ptr = realloc(ptr, new_size);
-	
-	if (ptr == NULL)
-		pn_panic("realloc failed.", func_name);
-	
-	return ptr;
+    ptr = realloc(ptr, new_size);
+    
+    if (ptr == NULL)
+        pn_panic("realloc failed.", func_name);
+    
+    return ptr;
 }
 
 /*
@@ -67,6 +67,6 @@ pn_flag(int flag,
         const char* errmsg,
         const char func_name[])
 {
-	if (flag)
-		pn_panic(errmsg, func_name);
+    if (flag)
+        pn_panic(errmsg, func_name);
 }

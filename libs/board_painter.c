@@ -46,13 +46,13 @@
 void
 print_horizontal_line(void)
 {
-	puts("+---+---+---+---+---+---+---+---+");
+    puts("+---+---+---+---+---+---+---+---+");
 }
 
 void
 print_free_spaces(void)
 {
-	puts("|   |   |   |   |   |   |   |   |");
+    puts("|   |   |   |   |   |   |   |   |");
 }
 
 /*
@@ -62,13 +62,13 @@ print_free_spaces(void)
 void
 tc_print_board(void)
 {
-	print_horizontal_line();
-	for (int i = 0; i < 8; ++i)
-	{
-		print_free_spaces();
-		print_horizontal_line();
-	}
-	printf("\nHit ESC key to exit.");
+    print_horizontal_line();
+    for (int i = 0; i < 8; ++i)
+    {
+        print_free_spaces();
+        print_horizontal_line();
+    }
+    printf("\nHit ESC key to exit.");
 }
 
 /*
@@ -79,44 +79,44 @@ void
 print_raw_piece(tc_piece_inst piece)
 {
 #define EMPTY_PIECE (tc_color) (tc_black)
-	switch (piece.type) {
-	case tc_pawn:
-		if (piece.color == EMPTY_PIECE)
-			printf("♙");
-		else
-			printf("♟");
-		break;
-	case tc_bishop:
-		if (piece.color == EMPTY_PIECE)
-			printf("♗");
-		else
-			printf("♝");
-		break;
-	case tc_knight:
-		if (piece.color == EMPTY_PIECE)
-			printf("♘");
-		else
-			printf("♞");
-		break;
-	case tc_rook:
-		if (piece.color == EMPTY_PIECE)
-			printf("♖");
-		else
-			printf("♜");
-		break;
-	case tc_queen:
-		if (piece.color == EMPTY_PIECE)
-			printf("♕");
-		else
-			printf("♛");
-		break;
-	case tc_king:
-		if (piece.color == EMPTY_PIECE)
-			printf("♔");
-		else
-			printf("♚");
-		break;
-	}
+    switch (piece.type) {
+    case tc_pawn:
+        if (piece.color == EMPTY_PIECE)
+            printf("♙");
+        else
+            printf("♟");
+        break;
+    case tc_bishop:
+        if (piece.color == EMPTY_PIECE)
+            printf("♗");
+        else
+            printf("♝");
+        break;
+    case tc_knight:
+        if (piece.color == EMPTY_PIECE)
+            printf("♘");
+        else
+            printf("♞");
+        break;
+    case tc_rook:
+        if (piece.color == EMPTY_PIECE)
+            printf("♖");
+        else
+            printf("♜");
+        break;
+    case tc_queen:
+        if (piece.color == EMPTY_PIECE)
+            printf("♕");
+        else
+            printf("♛");
+        break;
+    case tc_king:
+        if (piece.color == EMPTY_PIECE)
+            printf("♔");
+        else
+            printf("♚");
+        break;
+    }
 }
 
 /*
@@ -127,11 +127,11 @@ size_t
 chessrow_to_termrow(size_t row,
                     tc_color color)
 {
-	if (color == tc_white)
-		row = TC_ROW_SIZE - row - 1;
-	row *= 2;
-	row += 2;
-	return row;
+    if (color == tc_white)
+        row = TC_ROW_SIZE - row - 1;
+    row *= 2;
+    row += 2;
+    return row;
 }
 
 /*
@@ -141,12 +141,12 @@ chessrow_to_termrow(size_t row,
 size_t chesscol_to_termcol(size_t col,
                            tc_color color)
 {
-	if (color == tc_black)
-		col = TC_COL_SIZE - col - 1;
-	
-	col *= 4;
-	col += 3;
-	return col;
+    if (color == tc_black)
+        col = TC_COL_SIZE - col - 1;
+    
+    col *= 4;
+    col += 3;
+    return col;
 }
 
 /*
@@ -157,9 +157,9 @@ void
 tc_cursor_to_square(tc_square square,
                     tc_color color)
 {
-	size_t row = chessrow_to_termrow(square.row, color);
-	size_t col = chesscol_to_termcol(square.col, color);
-	tp_cursor_to(row, col);
+    size_t row = chessrow_to_termrow(square.row, color);
+    size_t col = chesscol_to_termcol(square.col, color);
+    tp_cursor_to(row, col);
 }
 
 /*
@@ -171,8 +171,8 @@ void
 tc_print_placed_piece(tc_piece_inst piece,
                       tc_color color)
 {
-	tc_cursor_to_square(piece.location, color);
-	print_raw_piece(piece);
+    tc_cursor_to_square(piece.location, color);
+    print_raw_piece(piece);
 }
 
 /*
@@ -184,8 +184,8 @@ void
 tc_empty_square(tc_square square,
                 tc_color color)
 {
-	tc_cursor_to_square(square, color);
-	putchar(' ');
+    tc_cursor_to_square(square, color);
+    putchar(' ');
 }
 
 /*
@@ -197,8 +197,8 @@ void
 tc_print_pieces(tc_board_state* board_state,
                 tc_color color)
 {
-	size_t piece_count = board_state -> piece_size;
+    size_t piece_count = board_state -> piece_size;
 
-	for (size_t i = 0; i < piece_count; ++i)
-		tc_print_placed_piece(board_state -> piece_v[i], color);
+    for (size_t i = 0; i < piece_count; ++i)
+        tc_print_placed_piece(board_state -> piece_v[i], color);
 }

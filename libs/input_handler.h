@@ -10,9 +10,9 @@
  */
 struct sessioninfo
 {
-	tc_board_state board;
-	tc_color player_color;
-	tc_square current_square;
+    tc_board_state board;
+    tc_color player_color;
+    tc_square current_square;
 };
 
 /*

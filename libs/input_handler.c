@@ -19,12 +19,12 @@
 struct sessioninfo
 tc_new_default_session(void)
 {
-	return (struct sessioninfo)
-		{
-			tc_new_default_board(),
-			tc_white,
-			(tc_square) {tc_a, tc_1},
-		};
+    return (struct sessioninfo)
+        {
+            tc_new_default_board(),
+            tc_white,
+            (tc_square) {tc_a, tc_1},
+        };
 }
 
 /*
@@ -35,8 +35,8 @@ tc_new_default_session(void)
 static void
 tc_repaint(struct sessioninfo* si)
 {
-	tc_print_pieces(&(si -> board), si -> player_color);
-	tc_cursor_to_square(si -> current_square, si -> player_color);
+    tc_print_pieces(&(si -> board), si -> player_color);
+    tc_cursor_to_square(si -> current_square, si -> player_color);
 }
 
 /*
@@ -47,15 +47,15 @@ tc_repaint(struct sessioninfo* si)
  */
 static inline void
 tc_cursor_translate(struct sessioninfo* si,
-					int drow,
-					int dcol)
+                    int drow,
+                    int dcol)
 {
-	tc_translate((struct tc_translate_args) {
-			.square  = &(si -> current_square),
-			.drow    = drow * tc_forward(si -> player_color),
-			.dcol    = dcol * tc_forward(si -> player_color),
-			.errflag = NULL,
-		});
+    tc_translate((struct tc_translate_args) {
+            .square  = &(si -> current_square),
+            .drow    = drow * tc_forward(si -> player_color),
+            .dcol    = dcol * tc_forward(si -> player_color),
+            .errflag = NULL,
+        });
 }
 
 /*
@@ -69,49 +69,49 @@ tc_cursor_translate(struct sessioninfo* si,
 static void
 tc_select_square(struct sessioninfo* si)
 {
-	enum select_type
-		{
-			NOTHING_SELECTED,
-			PIECE_SELECTED,
-		};
-	
-	static enum select_type select_state = NOTHING_SELECTED;
-	static size_t selected_piece;
-	static tc_square selected_square;
+    enum select_type
+        {
+            NOTHING_SELECTED,
+            PIECE_SELECTED,
+        };
+    
+    static enum select_type select_state = NOTHING_SELECTED;
+    static size_t selected_piece;
+    static tc_square selected_square;
 
-	if (select_state == NOTHING_SELECTED)
-	{
-		int empty_square_flag = 0;
-		selected_piece = tc_square_id(&(si -> board),
-									  &(si -> current_square),
-									  &empty_square_flag);
-		selected_square = si -> current_square;
-		
-		if (empty_square_flag)
-			return;
+    if (select_state == NOTHING_SELECTED)
+    {
+        int empty_square_flag = 0;
+        selected_piece = tc_square_id(&(si -> board),
+                                      &(si -> current_square),
+                                      &empty_square_flag);
+        selected_square = si -> current_square;
+        
+        if (empty_square_flag)
+            return;
 
-		select_state = PIECE_SELECTED;
-	}
-	else
-	{
-		struct tc_move_info move_info;
-		move_info = tc_evaluate_move(&(si -> board),
-									 selected_piece,
-									 &(si -> current_square));
+        select_state = PIECE_SELECTED;
+    }
+    else
+    {
+        struct tc_move_info move_info;
+        move_info = tc_evaluate_move(&(si -> board),
+                                     selected_piece,
+                                     &(si -> current_square));
 
-		if (tc_is_valid_move(move_info))
-		{
-			tc_piece_tp_unsafe(&(si -> board),
-							   selected_piece,
-							   &(si -> current_square));
-			
-			if (move_info.type == v_OPP_CAPTURE)
-				tc_kill_unsafe(&(si -> board), move_info.captured_id);
-		
-			tc_empty_square(selected_square, si -> player_color);
-		}
-		select_state = NOTHING_SELECTED;
-	}
+        if (tc_is_valid_move(move_info))
+        {
+            tc_piece_tp_unsafe(&(si -> board),
+                               selected_piece,
+                               &(si -> current_square));
+            
+            if (move_info.type == v_OPP_CAPTURE)
+                tc_kill_unsafe(&(si -> board), move_info.captured_id);
+        
+            tc_empty_square(selected_square, si -> player_color);
+        }
+        select_state = NOTHING_SELECTED;
+    }
 }
 
 /*
@@ -125,51 +125,51 @@ tc_select_square(struct sessioninfo* si)
 static int
 handle_input(struct sessioninfo* si, char cinput)
 {
-	int drow;
-	int dcol;
-	
-	switch (cinput) {
-	case 'w':
-		drow = 1;
-		dcol = 0;
-		break;
-	case 'W':
-		drow = 2;
-		dcol = 0;
-		break;
-	case 'a':
-		drow = 0;
-		dcol = -1;
-		break;
-	case 'A':
-		drow = 0;
-		dcol = -2;
-		break;
-	case 's':
-		drow = -1;
-		dcol = 0;
-		break;
-	case 'S':
-		drow = -2;
-		dcol = 0;
-		break;
-	case 'd':
-		drow = 0;
-		dcol = 1;
-		break;
-	case 'D':
-		drow = 0;
-		dcol = 2;
-		break;
-	case KB_ENTER:
-		tc_select_square(si);
-		return 0;
-	case KB_ESC:
-		return 0;
-	}
-	
-	tc_cursor_translate(si, drow, dcol);
-	return 1;
+    int drow;
+    int dcol;
+    
+    switch (cinput) {
+    case 'w':
+        drow = 1;
+        dcol = 0;
+        break;
+    case 'W':
+        drow = 2;
+        dcol = 0;
+        break;
+    case 'a':
+        drow = 0;
+        dcol = -1;
+        break;
+    case 'A':
+        drow = 0;
+        dcol = -2;
+        break;
+    case 's':
+        drow = -1;
+        dcol = 0;
+        break;
+    case 'S':
+        drow = -2;
+        dcol = 0;
+        break;
+    case 'd':
+        drow = 0;
+        dcol = 1;
+        break;
+    case 'D':
+        drow = 0;
+        dcol = 2;
+        break;
+    case KB_ENTER:
+        tc_select_square(si);
+        return 1;
+    case KB_ESC:
+        return 0;
+    }
+    
+    tc_cursor_translate(si, drow, dcol);
+    return 1;
 }
 
 /*
@@ -184,6 +184,6 @@ handle_input(struct sessioninfo* si, char cinput)
 void
 tc_game_loop(struct sessioninfo* si)
 {
-	do tc_repaint(si);
-	while (handle_input(si, ii_next_char()));
+    do tc_repaint(si);
+    while (handle_input(si, ii_next_char()));
 }
