@@ -65,7 +65,7 @@ tc_translate(struct tc_translate_args args);
   it might crash the program. If ID is greater than piece_size,
   it will give nonsense results.
 
-  Ideally, id is taken from tc_square_id, meaning that ID
+  Ideally, the ID is taken from tc_square_id, meaning the ID
   is ALWAYS a valid.
  */
 void

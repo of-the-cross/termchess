@@ -5,7 +5,6 @@
 #include "instant_input.h"
 #include "kbmacros.h"
 #include "piece_movement.h"
-#include <ctype.h>
 #include <sys/cdefs.h>
 
 /*
@@ -40,53 +39,24 @@ tc_repaint(struct sessioninfo* si)
 	tc_cursor_to_square(si -> current_square, si -> player_color);
 }
 
-// ######################### CURSOR MOVEMENT FUNCTIONS #########################
-
+/*
+  Translate the current_square (remember: that is the selected square,
+  the square which our terminal cursor is hovering over) whichever way
+  the user wishes. This also keeps into mind the fact that this could
+  be different depending on which side of the board the user is in.
+ */
 static inline void
-tc_move_up(struct sessioninfo* si)
+tc_cursor_translate(struct sessioninfo* si,
+					int drow,
+					int dcol)
 {
 	tc_translate((struct tc_translate_args) {
 			.square  = &(si -> current_square),
-			.drow    = tc_forward(si -> player_color),
-			.dcol    = 0,
+			.drow    = drow * tc_forward(si -> player_color),
+			.dcol    = dcol * tc_forward(si -> player_color),
 			.errflag = NULL,
 		});
 }
-
-static inline void
-tc_move_left(struct sessioninfo* si)
-{
-	tc_translate((struct tc_translate_args) {
-			.square  = &(si -> current_square),
-			.drow    = 0,
-			.dcol    = -tc_forward(si -> player_color),
-			.errflag = NULL,
-		});
-}
-
-static inline void
-tc_move_down(struct sessioninfo* si)
-{
-	tc_translate((struct tc_translate_args) {
-			.square  = &(si -> current_square),
-			.drow    = -tc_forward(si -> player_color),
-			.dcol    = 0,
-			.errflag = NULL,
-		});
-}
-
-static inline void
-tc_move_right(struct sessioninfo* si)
-{
-	tc_translate((struct tc_translate_args) {
-			.square  = &(si -> current_square),
-			.drow    = 0,
-			.dcol    = tc_forward(si -> player_color),
-			.errflag = NULL,
-		});
-}
-
-// ######################### END CURSOR MOVEMENT FUNCS #########################
 
 /*
   Big mama of a function. Handles anything and everything to do with
@@ -124,10 +94,10 @@ tc_select_square(struct sessioninfo* si)
 	}
 	else
 	{
-		struct tc_mov_info move_info;
+		struct tc_move_info move_info;
 		move_info = tc_evaluate_move(&(si -> board),
-										 selected_piece,
-										 &(si -> current_square));
+									 selected_piece,
+									 &(si -> current_square));
 
 		if (tc_is_valid_move(move_info))
 		{
@@ -135,7 +105,7 @@ tc_select_square(struct sessioninfo* si)
 							   selected_piece,
 							   &(si -> current_square));
 			
-			if (move_info.validity == v_OPP_CAPTURE)
+			if (move_info.type == v_OPP_CAPTURE)
 				tc_kill_unsafe(&(si -> board), move_info.captured_id);
 		
 			tc_empty_square(selected_square, si -> player_color);
@@ -155,25 +125,50 @@ tc_select_square(struct sessioninfo* si)
 static int
 handle_input(struct sessioninfo* si, char cinput)
 {
+	int drow;
+	int dcol;
+	
 	switch (cinput) {
+	case 'w':
+		drow = 1;
+		dcol = 0;
+		break;
 	case 'W':
-		tc_move_up(si);
+		drow = 2;
+		dcol = 0;
+		break;
+	case 'a':
+		drow = 0;
+		dcol = -1;
 		break;
 	case 'A':
-		tc_move_left(si);
+		drow = 0;
+		dcol = -2;
+		break;
+	case 's':
+		drow = -1;
+		dcol = 0;
 		break;
 	case 'S':
-		tc_move_down(si);
+		drow = -2;
+		dcol = 0;
+		break;
+	case 'd':
+		drow = 0;
+		dcol = 1;
 		break;
 	case 'D':
-		tc_move_right(si);
+		drow = 0;
+		dcol = 2;
 		break;
 	case KB_ENTER:
 		tc_select_square(si);
-		break;
+		return 0;
 	case KB_ESC:
 		return 0;
 	}
+	
+	tc_cursor_translate(si, drow, dcol);
 	return 1;
 }
 
@@ -190,5 +185,5 @@ void
 tc_game_loop(struct sessioninfo* si)
 {
 	do tc_repaint(si);
-	while (handle_input(si, toupper(ii_next_char())));
+	while (handle_input(si, ii_next_char()));
 }

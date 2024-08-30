@@ -26,9 +26,9 @@
   that the pawn must promote to.
 */
 
-struct append_valid_mov_args
+struct append_moveset_args
 {
-	struct tc_valid_mov* holder;
+	struct tc_moveset* moveset;
 	const tc_square* to_square;
 	char flags;
 	int id;
@@ -51,30 +51,30 @@ struct append_valid_mov_args
 		});
  */
 static void
-append_valid_mov(struct append_valid_mov_args args)
+append_to_moveset(struct append_moveset_args args)
 {
 	/* Readability variable */
-	struct tc_valid_mov* holder = args.holder;
+	struct tc_moveset* moveset = args.moveset;
 	
-	if (holder -> count + 1 >= holder -> max)
+	if (moveset -> count + 1 >= moveset -> max)
 	{
-		holder -> max *= 2;
-		PN_REALLOC(holder -> array,
-				   sizeof(*(holder -> array)) * holder -> max);
+		moveset -> max *= 2;
+		PN_REALLOC(moveset -> array,
+				   sizeof(*(moveset -> array)) * moveset -> max);
 	}
 
-	holder -> array[holder -> count].square = *args.to_square;
-	holder -> array[holder -> count].flags  = args.flags;
-	holder -> array[holder -> count].id     = args.id;
-	++(holder -> count);
+	moveset -> array[moveset -> count].square = *args.to_square;
+	moveset -> array[moveset -> count].flags  = args.flags;
+	moveset -> array[moveset -> count].id     = args.id;
+	++(moveset -> count);
 }
 
-struct append_if_capture_args
+struct append_onlyif_capture_args
 {
 	const tc_board_state* board;
 	const tc_square* square;
-	const tc_piece_color opp_color;
-	struct tc_valid_mov* return_holder;
+	const tc_color opp_color;
+	struct tc_moveset* return_holder;
 };
 
 /*
@@ -95,7 +95,7 @@ struct append_if_capture_args
 		});
  */
 static void
-append_onlyif_capture(struct append_if_capture_args args)
+append_onlyif_capture(struct append_onlyif_capture_args args)
 {
 	int empty_square_flag = 0;
 	size_t captured_id = tc_square_id(args.board,
@@ -104,11 +104,11 @@ append_onlyif_capture(struct append_if_capture_args args)
 	if (empty_square_flag)
 		return;
 	
-	tc_piece_color captured_color = args.board -> piece_v[captured_id].color;
+	tc_color captured_color = args.board -> piece_v[captured_id].color;
 
 	if (captured_color == args.opp_color)
-		append_valid_mov((struct append_valid_mov_args) {
-				.holder = args.return_holder,
+		append_to_moveset((struct append_moveset_args) {
+				.moveset = args.return_holder,
 				.to_square = args.square,
 				.flags = TC_MOVE_CAPTURE,
 				.id = captured_id,
@@ -127,12 +127,12 @@ append_onlyif_capture(struct append_if_capture_args args)
   3 - if 3 has a piece of opposing color, pawn can move to 3
  */
 static void
-fetch_pawn_moves(const tc_board_state* board,
-                   size_t mover_id,
-                   struct tc_valid_mov* return_holder)
+pawn_moveset(const tc_board_state* board,
+             size_t mover_id,
+             struct tc_moveset* return_holder)
 {
-	tc_piece_color mover_color;
-	tc_piece_color opp_color;
+	tc_color mover_color;
+	tc_color opp_color;
 	tc_square fore_square;
 	int errflag;
 	
@@ -175,8 +175,8 @@ fetch_pawn_moves(const tc_board_state* board,
 	  
 	 */
 	if (errflag)
-		append_valid_mov((struct append_valid_mov_args) {
-				.holder = return_holder,
+		append_to_moveset((struct append_moveset_args) {
+				.moveset = return_holder,
 				.to_square = &fore_square,
 				.flags = TC_MOVE_ORDINARY,
 			});
@@ -202,7 +202,7 @@ fetch_pawn_moves(const tc_board_state* board,
 
 	/* errflag is raised if the pawn is on the furthest column */
 	if (!errflag)
-		append_onlyif_capture((struct append_if_capture_args) {
+		append_onlyif_capture((struct append_onlyif_capture_args) {
 				.board = board,
 				.square = &capture_square,
 				.opp_color = opp_color,
@@ -220,7 +220,7 @@ fetch_pawn_moves(const tc_board_state* board,
 
 	/* errflag is raised if the pawn is on the furthest column */
 	if (!errflag)
-		append_onlyif_capture((struct append_if_capture_args) {
+		append_onlyif_capture((struct append_onlyif_capture_args) {
 				.board = board,
 				.square = &capture_square,
 				.opp_color = opp_color,
@@ -239,46 +239,46 @@ fetch_pawn_moves(const tc_board_state* board,
   and bigger as more and more moves are appended to it, after all.
  */
 static void
-fetch_valid_moves(const tc_board_state* board,
-                  size_t mover_id,
-                  struct tc_valid_mov* return_holder)
+fetch_moveset(const tc_board_state* board,
+              size_t mover_id,
+              struct tc_moveset* return_holder)
 {
 	return_holder -> count = 0;
 	switch (board -> piece_v[mover_id].type)
 	{
 	case tc_pawn:
-		fetch_pawn_moves(board, mover_id, return_holder);
+		pawn_moveset(board, mover_id, return_holder);
 		break;
 	case tc_bishop:
-		fetch_pawn_moves(board, mover_id, return_holder);
+		pawn_moveset(board, mover_id, return_holder);
 		break;
 	case tc_knight:
-		fetch_pawn_moves(board, mover_id, return_holder);
+		pawn_moveset(board, mover_id, return_holder);
 		break;
 	case tc_rook:
-		fetch_pawn_moves(board, mover_id, return_holder);
+		pawn_moveset(board, mover_id, return_holder);
 		break;
 	case tc_queen:
-		fetch_pawn_moves(board, mover_id, return_holder);
+		pawn_moveset(board, mover_id, return_holder);
 		break;
 	case tc_king:
-		fetch_pawn_moves(board, mover_id, return_holder);
+		pawn_moveset(board, mover_id, return_holder);
 		break;
 	}
 }
 
 /*
   Glorified sequential search. Just checks to see if some
-  tc_square move is contained in a tc_square array. tc_valid_mov
+  tc_square move is contained in a tc_square array. tc_moveset
   contains the size of the array, so this _really is_ just a search
   function.
  */
 static inline int
-check_if_valid_move(struct tc_valid_mov* valid_moves,
-                    const tc_square* move)
+find_move_in_set(struct tc_moveset* moveset,
+                 const tc_square* key)
 {
-	for (size_t i = 0; i < valid_moves -> count; ++i)
-		if (tc_square_equals(&(valid_moves -> array[i].square), move))
+	for (size_t i = 0; i < moveset -> count; ++i)
+		if (tc_square_equals(&(moveset -> array[i].square), key))
 			return i;	
 	return -1;
 }
@@ -291,18 +291,18 @@ check_if_valid_move(struct tc_valid_mov* valid_moves,
   This function, then, will initialize valid_moves.
  */
 static inline void
-reset_valid_move_holder(struct tc_valid_mov* holder)
+reset_moveset(struct tc_moveset* moveset)
 {
 	static const size_t initial_array_size = 12;
 
-	if (holder -> array == NULL)
+	if (moveset -> array == NULL)
 	{
-		holder -> max = initial_array_size;
-		holder -> array = PN_MALLOC((sizeof(tc_square) + sizeof(char))
-									* initial_array_size);
+		moveset -> max = initial_array_size;
+		moveset -> array = PN_MALLOC((sizeof(tc_square) + sizeof(char)) *
+									initial_array_size);
 	}
 	
-	holder -> count = 0;
+	moveset -> count = 0;
 }
 
 /*
@@ -315,28 +315,28 @@ reset_valid_move_holder(struct tc_valid_mov* holder)
   and turn it into information, which we can then use to figure
   out what the game should be doing next.
  */
-struct tc_mov_info
+struct tc_move_info
 tc_evaluate_move(const tc_board_state* board,
                  size_t mover_id,
                  const tc_square* to_square)
 {
-	static struct tc_valid_mov valid_moves = {0};
+	static struct tc_moveset moveset = {0};
 
-	reset_valid_move_holder(&valid_moves);
-	fetch_valid_moves(board, mover_id, &valid_moves);
+	reset_moveset(&moveset);
+	fetch_moveset(board, mover_id, &moveset);
 
-	int index = check_if_valid_move(&valid_moves, to_square);
+	int index = find_move_in_set(&moveset, to_square);
 	if (index == -1)
-		return (struct tc_mov_info)
-			{ .validity = i_INVALID_SQUARE };
+		return (struct tc_move_info)
+			{ .type = i_INVALID_SQUARE };
 
-	if (valid_moves.array[index].flags & TC_MOVE_CAPTURE)
-		return (struct tc_mov_info)
+	if (moveset.array[index].flags & TC_MOVE_CAPTURE)
+		return (struct tc_move_info)
 			{
-				.validity = v_OPP_CAPTURE,
-				.captured_id = valid_moves.array[index].captured_id,
+				.type = v_OPP_CAPTURE,
+				.captured_id = moveset.array[index].captured_id,
 			};
 
-	return (struct tc_mov_info)
-		{ .validity = v_EMPTY_SQUARE };
+	return (struct tc_move_info)
+		{ .type = v_EMPTY_SQUARE };
 }

@@ -11,7 +11,7 @@
 struct sessioninfo
 {
 	tc_board_state board;
-	tc_piece_color player_color;
+	tc_color player_color;
 	tc_square current_square;
 };
 

@@ -53,16 +53,16 @@ typedef enum
 {
 	tc_white,
 	tc_black,
-} tc_piece_color;
+} tc_color;
 
 static inline int
-tc_forward(tc_piece_color color)
+tc_forward(tc_color color)
 {
 	return color == tc_white ? 1 : -1;
 }
 
-static inline tc_piece_color
-tc_enemy_color(tc_piece_color color)
+static inline tc_color
+tc_enemy_color(tc_color color)
 {
 	return color == tc_white ? tc_black : tc_white;
 }
@@ -70,7 +70,7 @@ tc_enemy_color(tc_piece_color color)
 typedef struct
 {
 	tc_piece_type type;
-	tc_piece_color color;
+	tc_color color;
 	tc_square location;
 } tc_piece_inst;
 /*
