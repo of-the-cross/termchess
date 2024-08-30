@@ -438,6 +438,72 @@ rook_moveset(const tc_board_state* board,
 }
 
 /*
+  +---+---+---+---+---+---+---+
+  | ! |   |   |   |   |   | p | <--- Pieces of the same color block
+  +---+---+---+---+---+---+---+      the square so this should be an
+  |   | ! |   |   |   | ! |   |      invalid square
+  +---+---+---+---+---+---+---+
+  |   |   | ! |   | ! |   |   |
+  +---+---+---+---+---+---+---+
+  |   |   |   | B |   |   |   |
+  +---+---+---+---+---+---+---+
+  |   |   | ! |   | ! |   |   |
+  +---+---+---+---+---+---+---+
+  |   | ! |   |   |   | ! |   |      Pieces of opposite color are
+  +---+---+---+---+---+---+---+      fair game so this should be a
+  | ! |   |   |   |   |   | p | <--- valid square
+  +---+---+---+---+---+---+---+
+
+  Diagonal movement, basically.
+ */
+static void
+bishop_moveset(const tc_board_state* board,
+               size_t mover_id,
+               struct tc_moveset* moveset)
+{
+    tc_square mover_square;
+    tc_color opp_color;
+    mover_square = board -> piece_v[mover_id].location;
+    opp_color = tc_enemy_color(board -> piece_v[mover_id].color);
+
+    append_linear((struct append_linear_args) {
+            .board       = board,
+            .root_square = &mover_square,
+            .moveset     = moveset,
+            .opp_color   = opp_color,
+            .row_step    = 1,
+            .col_step    = 1,
+        });
+    
+    append_linear((struct append_linear_args) {
+            .board       = board,
+            .root_square = &mover_square,
+            .moveset     = moveset,
+            .opp_color   = opp_color,
+            .row_step    = -1,
+            .col_step    = 1,
+        });
+    
+    append_linear((struct append_linear_args) {
+            .board       = board,
+            .root_square = &mover_square,
+            .moveset     = moveset,
+            .opp_color   = opp_color,
+            .row_step    = 1,
+            .col_step    = -1,
+        });
+    
+    append_linear((struct append_linear_args) {
+            .board       = board,
+            .root_square = &mover_square,
+            .moveset     = moveset,
+            .opp_color   = opp_color,
+            .row_step    = -1,
+            .col_step    = -1,
+        });
+}
+
+/*
   Set up a vector of squares where a piece is allowed to go.
   This does not keep chess-checks in mind.
 
@@ -459,7 +525,7 @@ fetch_moveset(const tc_board_state* board,
         pawn_moveset(board, mover_id, moveset);
         break;
     case tc_bishop:
-        pawn_moveset(board, mover_id, moveset);
+        bishop_moveset(board, mover_id, moveset);
         break;
     case tc_knight:
         pawn_moveset(board, mover_id, moveset);
@@ -468,7 +534,8 @@ fetch_moveset(const tc_board_state* board,
         rook_moveset(board, mover_id, moveset);
         break;
     case tc_queen:
-        pawn_moveset(board, mover_id, moveset);
+        rook_moveset(board, mover_id, moveset);
+        bishop_moveset(board, mover_id, moveset);
         break;
     case tc_king:
         pawn_moveset(board, mover_id, moveset);
