@@ -118,9 +118,6 @@ tc_select_square(struct sessioninfo* si)
   Master function for all input handling. Given some char input
   and a struct sessioninfo, it will call the functions aligning
   with that char input, modifying sessioninfo.
-
-  The function assumes that cinput is already in uppercase, so
-  toupper() must be called before any char input is called!
  */
 static int
 handle_input(struct sessioninfo* si, char cinput)

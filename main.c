@@ -6,13 +6,13 @@
 int
 main(void)
 {
-	ii_init();
-	tp_general_setup();
-	tc_print_board();
+    ii_init();
+    tp_general_setup();
+    tc_print_board();
 
-	struct sessioninfo my_session = tc_new_default_session();
+    struct sessioninfo my_session = tc_new_default_session();
 
-	tc_game_loop(&my_session);
-	
-	return 0;
+    tc_game_loop(&my_session);
+    
+    return 0;
 }

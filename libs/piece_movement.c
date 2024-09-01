@@ -119,8 +119,8 @@ struct append_empty_or_capture_args
 };
 
 /*
-  Appends to the _moveset_ vector the square if the square is empty
-  or if the piece is occupied by the square is a piece of the
+  Appends to the _moveset_ vector the given square if the square
+  is empty or if the piece occupying the square is a piece of the
   opposing color. If the square is empty, no flags are raised.
   If the square is occupied by a piece of the opposing color,
   capture_flag is set to 1. If the square is occupied by a piece
@@ -153,11 +153,15 @@ append_empty_or_capture(struct append_empty_or_capture_args args)
                 .flags = TC_MOVE_CAPTURE,
                 .id = captured_id,
             });
-        *(args.capture_flag) = 1;
+        
+        if (args.capture_flag)
+            *(args.capture_flag) = 1;
+        
         return;
     }
-    
-    *(args.blocked_flag) = 1;
+
+    if (args.blocked_flag)
+        *(args.blocked_flag) = 1;
 }
 
 /*
@@ -310,31 +314,31 @@ struct append_linear_args
   +---+
   | p |
   +---+
-  | ! | <--- Appended with TC_MOVE_ORDINARY
+  | ! | <--- Appended with TC_MOVE_ORDINARY flag
   +---+
-  | ! | <--- Appended with TC_MOVE_ORDINARY
+  | ! | <--- Appended with TC_MOVE_ORDINARY flag
   +---+
-  | ! | <--- Appended with TC_MOVE_ORDINARY
+  | ! | <--- Appended with TC_MOVE_ORDINARY flag
   +---+
-  | ! | <--- Appended with TC_MOVE_ORDINARY
+  | ! | <--- Appended with TC_MOVE_ORDINARY flag
   +---+
-  | ! | <--- Appended with TC_MOVE_CAPTURE
+  | ! | <--- Appended with TC_MOVE_CAPTURE flag
   +---+
 
-  If the piece on the bottom wasn't the opposing
+  If the piece on the bottom isn't the opposing
   color, then every square up until that piece's
   square will be appended. Like so:
   
   +---+
   | p |
   +---+
-  | ! | <--- Appended with TC_MOVE_ORDINARY
+  | ! | <--- Appended with TC_MOVE_ORDINARY flag
   +---+
-  | ! | <--- Appended with TC_MOVE_ORDINARY
+  | ! | <--- Appended with TC_MOVE_ORDINARY flag
   +---+
-  | ! | <--- Appended with TC_MOVE_ORDINARY
+  | ! | <--- Appended with TC_MOVE_ORDINARY flag
   +---+
-  | ! | <--- Appended with TC_MOVE_ORDINARY
+  | ! | <--- Appended with TC_MOVE_ORDINARY flag
   +---+
   |   |
   +---+
@@ -400,41 +404,31 @@ rook_moveset(const tc_board_state* board,
     mover_square = board -> piece_v[mover_id].location;
     opp_color = tc_enemy_color(board -> piece_v[mover_id].color);
 
-    append_linear((struct append_linear_args) {
-            .board       = board,
-            .root_square = &mover_square,
-            .moveset     = moveset,
-            .opp_color   = opp_color,
-            .row_step    = 1,
-            .col_step    = 0,
-        });
-    
-    append_linear((struct append_linear_args) {
-            .board       = board,
-            .root_square = &mover_square,
-            .moveset     = moveset,
-            .opp_color   = opp_color,
-            .row_step    = -1,
-            .col_step    = 0,
-        });
-    
-    append_linear((struct append_linear_args) {
-            .board       = board,
-            .root_square = &mover_square,
-            .moveset     = moveset,
-            .opp_color   = opp_color,
-            .row_step    = 0,
-            .col_step    = 1,
-        });
-    
-    append_linear((struct append_linear_args) {
-            .board       = board,
-            .root_square = &mover_square,
-            .moveset     = moveset,
-            .opp_color   = opp_color,
-            .row_step    = 0,
-            .col_step    = -1,
-        });
+    static const int dcol = 0;
+    static const int drow = 1;
+    static const int direction_count = 4;
+    static const int directions[4][2] =
+        {
+            {  1,  0 },
+            { -1,  0 },
+            {  0,  1 },
+            {  0, -1 },
+        };
+
+    int index = 0;
+
+    while (index < direction_count)
+    {
+        append_linear((struct append_linear_args) {
+                .board       = board,
+                .root_square = &mover_square,
+                .moveset     = moveset,
+                .opp_color   = opp_color,
+                .row_step    = directions[index][drow],
+                .col_step    = directions[index][dcol],
+            });
+        ++index;
+    }
 }
 
 /*
@@ -466,41 +460,170 @@ bishop_moveset(const tc_board_state* board,
     mover_square = board -> piece_v[mover_id].location;
     opp_color = tc_enemy_color(board -> piece_v[mover_id].color);
 
-    append_linear((struct append_linear_args) {
-            .board       = board,
-            .root_square = &mover_square,
-            .moveset     = moveset,
-            .opp_color   = opp_color,
-            .row_step    = 1,
-            .col_step    = 1,
-        });
+    static const int dcol = 0;
+    static const int drow = 1;
+    static const int direction_count = 4;
+    static const int directions[4][2] =
+        {
+            {  1,  1 },
+            { -1,  1 },
+            {  1, -1 },
+            { -1, -1 },
+        };
+
+    int index = 0;
+
+    while (index < direction_count)
+    {
+        append_linear((struct append_linear_args) {
+                .board       = board,
+                .root_square = &mover_square,
+                .moveset     = moveset,
+                .opp_color   = opp_color,
+                .row_step    = directions[index][drow],
+                .col_step    = directions[index][dcol],
+            });
+        ++index;
+    }
+}
+
+/*
+  +---+---+---+---+---+---+---+
+  |   |   |   |   |   |   |   |
+  +---+---+---+---+---+---+---+ Knights can only ever move a maximum
+  |   |   | ! |   | ! |   |   | of eight squares. This makes their
+  +---+---+---+---+---+---+---+ implementation trivial.
+  |   | ! |   |   |   | ! |   |
+  +---+---+---+---+---+---+---+ Just calling append_empty_or_capture
+  |   |   |   | N |   |   |   | on every single one of these squares
+  +---+---+---+---+---+---+---+ (remembering out-of-bounds squares)
+  |   | ! |   |   |   | ! |   | is all we need.
+  +---+---+---+---+---+---+---+
+  |   |   | ! |   | ! |   |   |
+  +---+---+---+---+---+---+---+
+  |   |   |   |   |   |   |   |
+  +---+---+---+---+---+---+---+
+ */
+static void
+knight_moveset(const tc_board_state* board,
+               size_t mover_id,
+               struct tc_moveset* moveset)
+{
+    const tc_square mover_square = board -> piece_v[mover_id].location;
+    tc_color opp_color = tc_enemy_color(board -> piece_v[mover_id].color);
     
-    append_linear((struct append_linear_args) {
-            .board       = board,
-            .root_square = &mover_square,
-            .moveset     = moveset,
-            .opp_color   = opp_color,
-            .row_step    = -1,
-            .col_step    = 1,
-        });
+    tc_square move; // The square that we are considering adding to moveset
     
-    append_linear((struct append_linear_args) {
-            .board       = board,
-            .root_square = &mover_square,
-            .moveset     = moveset,
-            .opp_color   = opp_color,
-            .row_step    = 1,
-            .col_step    = -1,
-        });
+    int out_of_bounds = 0;
+
+    static const int dcol = 0;
+    static const int drow = 1;
+    static const int move_count = 8;
+    static const int squares[8][2] =
+        {
+            {  2,  1 },
+            {  1,  2 },
+            { -2,  1 },
+            { -1,  2 },
+            {  2, -1 },
+            {  1, -2 },
+            { -2, -1 },
+            { -1, -2 },         
+        };
+
+    int index = 0;
+
+    while (index < move_count)
+    {
+        move = mover_square;
+        tc_translate((struct tc_translate_args) {
+                .square = &move,
+                .dcol = squares[index][dcol],
+                .drow = squares[index][drow],
+                .errflag = &out_of_bounds,
+            });
+
+        if (!out_of_bounds)
+            append_empty_or_capture((struct append_empty_or_capture_args) {
+                    .board = board,
+                    .moveset = moveset,
+                    .square = &move,
+                    .blocked_flag = NULL,
+                    .capture_flag = NULL,
+                    .opp_color = opp_color,
+                });
+        else
+            out_of_bounds = 0;
+        
+        ++index;
+    }
+}
+/*
+  +---+---+---+---+---+
+  |   |   |   |   |   | Kings can only ever move a maximum  
+  +---+---+---+---+---+ of eight squares, which makes their 
+  |   | ! | ! | ! |   | implementation both very simple and 
+  +---+---+---+---+---+ very similar to the knight's        
+  |   | ! | K | ! |   | implementation.                     
+  +---+---+---+---+---+                                     
+  |   | ! | ! | ! |   | Calling append_empty_or_capture on  
+  +---+---+---+---+---+ all these squares (remembering out-
+  |   |   |   |   |   | of-bounds squares) just works.
+  +---+---+---+---+---+
+ */
+static void
+king_moveset(const tc_board_state* board,
+             size_t mover_id,
+             struct tc_moveset* moveset)
+{
+    const tc_square mover_square = board -> piece_v[mover_id].location;
+    tc_color opp_color = tc_enemy_color(board -> piece_v[mover_id].color);
     
-    append_linear((struct append_linear_args) {
-            .board       = board,
-            .root_square = &mover_square,
-            .moveset     = moveset,
-            .opp_color   = opp_color,
-            .row_step    = -1,
-            .col_step    = -1,
-        });
+    tc_square move; // The square that we are considering adding to moveset
+    
+    int out_of_bounds = 0;
+
+    static const int dcol = 0;
+    static const int drow = 1;
+    static const int move_count = 8;
+    static const int squares[8][2] =
+        {
+            {  1,  0 },
+            {  1,  1 },
+            {  0,  1 },
+            { -1,  1 },
+            { -1,  0 },
+            { -1, -1 },
+            {  0, -1 },
+            {  1, -1 },
+        };
+
+    int index = 0;
+
+    while (index < move_count)
+    {
+        move = mover_square;
+        tc_translate((struct tc_translate_args) {
+                .square = &move,
+                .dcol = squares[index][dcol],
+                .drow = squares[index][drow],
+                .errflag = &out_of_bounds,
+            });
+
+        if (!out_of_bounds)
+            append_empty_or_capture((struct append_empty_or_capture_args) {
+                    .board = board,
+                    .moveset = moveset,
+                    .square = &move,
+                    .blocked_flag = NULL,
+                    .capture_flag = NULL,
+                    .opp_color = opp_color,
+                });
+        else
+            out_of_bounds = 0;
+        
+        ++index;
+    }
 }
 
 /*
@@ -528,7 +651,7 @@ fetch_moveset(const tc_board_state* board,
         bishop_moveset(board, mover_id, moveset);
         break;
     case tc_knight:
-        pawn_moveset(board, mover_id, moveset);
+        knight_moveset(board, mover_id, moveset);
         break;
     case tc_rook:
         rook_moveset(board, mover_id, moveset);
@@ -538,7 +661,7 @@ fetch_moveset(const tc_board_state* board,
         bishop_moveset(board, mover_id, moveset);
         break;
     case tc_king:
-        pawn_moveset(board, mover_id, moveset);
+        king_moveset(board, mover_id, moveset);
         break;
     }
 }
