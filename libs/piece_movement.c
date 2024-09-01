@@ -12,18 +12,18 @@
 #define TC_PROMOTION      (1 << 3)
 
 /*
-  0 0 0 0 0 0 0 0
-  ~~~~~~~ | | | |
-  |       | | | Capture bit flag
-  |       | | |
-  |       | | En Passant bit flag
-  |       | |
-  |       | Castle bit flag
-  |       |
-  |       Promotion bit flag
-  |
-  If promotion bit flag is raised, these 4 bits store the piece
-  that the pawn must promote to.
+    0 0 0 0 0 0 0 0
+    ~~~~~~~ | | | |
+     |      | | | Capture bit flag
+     |      | | |
+     |      | | En Passant bit flag
+     |      | |
+     |      | Castle bit flag
+     |      |
+     |      Promotion bit flag
+     |
+  These 4 bits store the piece that a pawn promotes to if the
+  promotion bit flag is raised.
 */
 
 struct append_moveset_args
@@ -59,8 +59,8 @@ append_to_moveset(struct append_moveset_args args)
     if (moveset -> count + 1 >= moveset -> max)
     {
         moveset -> max *= 2;
-        PN_REALLOC(moveset -> array,
-                   sizeof(*(moveset -> array)) * moveset -> max);
+        moveset = PN_REALLOC(moveset -> array,
+                             sizeof(moveset -> array[0]) * moveset -> max);
     }
 
     moveset -> array[moveset -> count].square = *args.to_square;
@@ -404,8 +404,8 @@ rook_moveset(const tc_board_state* board,
     mover_square = board -> piece_v[mover_id].location;
     opp_color = tc_enemy_color(board -> piece_v[mover_id].color);
 
-    static const int dcol = 0;
-    static const int drow = 1;
+    static const int colstep = 0;
+    static const int rowstep = 1;
     static const int direction_count = 4;
     static const int directions[4][2] =
         {
@@ -424,8 +424,8 @@ rook_moveset(const tc_board_state* board,
                 .root_square = &mover_square,
                 .moveset     = moveset,
                 .opp_color   = opp_color,
-                .row_step    = directions[index][drow],
-                .col_step    = directions[index][dcol],
+                .row_step    = directions[index][rowstep],
+                .col_step    = directions[index][colstep],
             });
         ++index;
     }
@@ -460,8 +460,8 @@ bishop_moveset(const tc_board_state* board,
     mover_square = board -> piece_v[mover_id].location;
     opp_color = tc_enemy_color(board -> piece_v[mover_id].color);
 
-    static const int dcol = 0;
-    static const int drow = 1;
+    static const int colstep = 0;
+    static const int rowstep = 1;
     static const int direction_count = 4;
     static const int directions[4][2] =
         {
@@ -480,8 +480,8 @@ bishop_moveset(const tc_board_state* board,
                 .root_square = &mover_square,
                 .moveset     = moveset,
                 .opp_color   = opp_color,
-                .row_step    = directions[index][drow],
-                .col_step    = directions[index][dcol],
+                .row_step    = directions[index][rowstep],
+                .col_step    = directions[index][colstep],
             });
         ++index;
     }
@@ -516,8 +516,8 @@ knight_moveset(const tc_board_state* board,
     
     int out_of_bounds = 0;
 
-    static const int dcol = 0;
-    static const int drow = 1;
+    static const int colstep = 0;
+    static const int rowstep = 1;
     static const int move_count = 8;
     static const int squares[8][2] =
         {
@@ -538,8 +538,8 @@ knight_moveset(const tc_board_state* board,
         move = mover_square;
         tc_translate((struct tc_translate_args) {
                 .square = &move,
-                .dcol = squares[index][dcol],
-                .drow = squares[index][drow],
+                .dcol = squares[index][colstep],
+                .drow = squares[index][rowstep],
                 .errflag = &out_of_bounds,
             });
 
@@ -630,7 +630,7 @@ king_moveset(const tc_board_state* board,
   Set up a vector of squares where a piece is allowed to go.
   This does not keep chess-checks in mind.
 
-  It does not have a return value. Instead, it will manipulate
+  This does not have a return value. Instead, this will mutate
   a reference to the moveset, which will be its return holder.
   We should ideally be using the same moveset throughout the
   entire runtime of the program. The return moveset will get bigger
@@ -692,16 +692,15 @@ find_move_in_set(struct tc_moveset* moveset,
 static inline void
 reset_moveset(struct tc_moveset* moveset)
 {
-    static const size_t initial_array_size = 12;
+    moveset -> count = 0;
 
     if (moveset -> array == NULL)
     {
+        const size_t initial_array_size = 12;
         moveset -> max = initial_array_size;
-        moveset -> array = PN_MALLOC((sizeof(tc_square) + sizeof(char)) *
-                                    initial_array_size);
+        moveset -> array = PN_MALLOC(initial_array_size *
+                                     sizeof(moveset -> array[0]));
     }
-    
-    moveset -> count = 0;
 }
 
 /*
@@ -724,16 +723,16 @@ tc_evaluate_move(const tc_board_state* board,
     reset_moveset(&moveset);
     fetch_moveset(board, mover_id, &moveset);
 
-    int index = find_move_in_set(&moveset, to_square);
-    if (index == -1)
+    int id = find_move_in_set(&moveset, to_square);
+    if (id == -1)
         return (struct tc_move_info)
             { .type = i_INVALID_SQUARE };
 
-    if (moveset.array[index].flags & TC_MOVE_CAPTURE)
+    if (moveset.array[id].flags & TC_MOVE_CAPTURE)
         return (struct tc_move_info)
             {
                 .type = v_OPP_CAPTURE,
-                .captured_id = moveset.array[index].captured_id,
+                .captured_id = moveset.array[id].captured_id,
             };
 
     return (struct tc_move_info)

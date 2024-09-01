@@ -111,10 +111,10 @@ tc_square_equals(const tc_square* sqr1, const tc_square* sqr2)
 }
 
 /*
-  Find the index of a piece in the board whose location
+  Find the id of a piece in the board whose location
   matches the square given into the function. If not found,
-  the index is set to 0 and the inputted error flag is set
-  to one.
+  the id is set to 0 and the given error flag is set
+  to 1.
  */
 size_t
 tc_square_id(const tc_board_state* board,
@@ -148,16 +148,16 @@ tc_kill_unsafe(tc_board_state* board, size_t id)
 
 /*
   Extremely raw function that moves some piece from one square
-  to another square. It accesses pieces by index, meaning that
+  to another square. It accesses pieces by id, meaning that
   it WILL get a piece (if it doesn't overflow) and rewrite
   that piece's location.
 
-  Parent function needs to ensure that index is not greater
-  than board -> piece_size. If index is greater than piece_max,
-  it might crash the program. If index is greater than piece_size,
+  Parent function needs to ensure that id is not greater
+  than board -> piece_size. If id is greater than piece_max,
+  it might crash the program. If id is greater than piece_size,
   it will give nonsense results.
 
-  Ideally, index was taken from tc_square_id, meaning that index
+  Ideally, id was taken from tc_square_id, meaning that id
   is ALWAYS a valid.
  */
 void
