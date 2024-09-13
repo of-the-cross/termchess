@@ -230,6 +230,8 @@ pawn_moveset(const tc_board_state* board,
                 .flags = TC_MOVE_ORDINARY,
             });
 
+    errflag = 0;
+
     /*
       +---+---+---+
       | 1 |   | 3 | <-- Now checking these two capture squares
@@ -238,10 +240,9 @@ pawn_moveset(const tc_board_state* board,
       +---+---+---+
     */
 
-    tc_square capture_square;
+    tc_square capture_square; // Holds either square 1 or 2
     
     capture_square = fore_square;
-    errflag = 0;
     tc_translate((struct tc_translate_args) {
             .square = &capture_square,
             .drow = 0,
@@ -258,8 +259,8 @@ pawn_moveset(const tc_board_state* board,
                 .moveset = moveset,
             });
     
-    capture_square = fore_square;
     errflag = 0;
+    capture_square = fore_square;
     tc_translate((struct tc_translate_args) {
             .square = &capture_square,
             .drow = 0,
@@ -378,7 +379,7 @@ append_linear(struct append_linear_args args)
 /*
   +---+---+---+---+---+---+---+
   |   |   |   | p |   <--- Pieces of the same color block the square
-  +---+---+---+---+---+--- So this should be an invalid square
+  +---+---+---+---+---+--- so this should be an invalid square
   |   |   |   | ! |   |   |   |
   +---+---+---+---+---+---+---+
   |   |   |   | ! |   |   |   |
@@ -390,7 +391,7 @@ append_linear(struct append_linear_args args)
   |   |   |   | ! |   |   |   |
   +---+---+---+---+---+---+---+
   |   |   |   | p |   <-- Pieces of opposite color are fair game
-  +---+---+---+---+---+-- So this should be a valid square
+  +---+---+---+---+---+-- so this should be a valid square
 
   Vertical and horizontal movement, basically.
  */
@@ -627,7 +628,7 @@ king_moveset(const tc_board_state* board,
 }
 
 /*
-  Set up a vector of squares where a piece is allowed to go.
+  Set up a vector of all squares where a piece is allowed to go.
   This does not keep chess-checks in mind.
 
   This does not have a return value. Instead, this will mutate
@@ -709,7 +710,7 @@ reset_moveset(struct tc_moveset* moveset)
   or an invalid move. Whether the move is a capture, and if so,
   what piece is getting captured.
 
-  Think of this function as a way to take an *attempt* to move
+  Think of this function as a way to take an _attempt_ to move
   and turn it into information, which we can then use to figure
   out what the game should be doing next.
  */
@@ -723,16 +724,16 @@ tc_evaluate_move(const tc_board_state* board,
     reset_moveset(&moveset);
     fetch_moveset(board, mover_id, &moveset);
 
-    int id = find_move_in_set(&moveset, to_square);
-    if (id == -1)
+    int index = find_move_in_set(&moveset, to_square);
+    if (index == -1)
         return (struct tc_move_info)
             { .type = i_INVALID_SQUARE };
 
-    if (moveset.array[id].flags & TC_MOVE_CAPTURE)
+    if (moveset.array[index].flags & TC_MOVE_CAPTURE)
         return (struct tc_move_info)
             {
                 .type = v_OPP_CAPTURE,
-                .captured_id = moveset.array[id].captured_id,
+                .captured_id = moveset.array[index].captured_id,
             };
 
     return (struct tc_move_info)

@@ -21,9 +21,10 @@ tc_new_default_session(void)
 {
     return (struct sessioninfo)
         {
-            tc_new_default_board(),
-            tc_white,
-            (tc_square) {tc_a, tc_1},
+            .board = tc_new_default_board(),
+            .player_color = tc_white,
+            .current_square = (tc_square) {tc_a, tc_1},
+            .current_turn = tc_white,
         };
 }
 
@@ -90,6 +91,9 @@ tc_select_square(struct sessioninfo* si)
         if (empty_square_flag)
             return;
 
+        if (si -> board.piece_v[selected_piece].color != si -> current_turn)
+            return;
+
         select_state = PIECE_SELECTED;
     }
     else
@@ -100,7 +104,9 @@ tc_select_square(struct sessioninfo* si)
                                      &(si -> current_square));
 
         if (tc_is_valid_move(move_info))
-        {
+        {            
+            si -> current_turn = tc_enemy_color(si -> current_turn);
+        
             tc_piece_tp_unsafe(&(si -> board),
                                selected_piece,
                                &(si -> current_square));
@@ -110,6 +116,7 @@ tc_select_square(struct sessioninfo* si)
         
             tc_empty_square(selected_square, si -> player_color);
         }
+        
         select_state = NOTHING_SELECTED;
     }
 }

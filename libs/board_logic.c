@@ -2,6 +2,7 @@
 #include "chess_defs.h"
 #include "panic.h"
 #include <string.h>
+#include <unistd.h>
 
 #define INIT_HISTORY_ALLOC 32
 #define INIT_PLACEMENT_ALLOC 32
@@ -60,8 +61,8 @@ static tc_piece_inst default_placement[TC_DEFAULT_PIECE_COUNT] =
   this for loop doesn't overflow!
  */
 void
-piece_array_copy(const tc_piece_inst* from,
-                 tc_piece_inst* to,
+piece_array_copy(const tc_piece_inst* restrict from,
+                 tc_piece_inst* restrict to,
                  size_t size)
 {
     for (size_t id = 0; id < size; ++id)
@@ -102,13 +103,18 @@ tc_new_default_board(void)
 
 /* Check if two tc_square data point to the same square */
 int
-tc_square_equals(const tc_square* sqr1, const tc_square* sqr2)
+tc_square_equals(const tc_square *restrict sqr1,
+                 const tc_square *restrict sqr2)
 {
     if (memcmp(sqr1, sqr2, sizeof(tc_square)) == 0)
         return 1;
     else
         return 0;
 }
+
+#if __WORDSIZE == 8
+#define A
+#endif
 
 /*
   Find the id of a piece in the board whose location

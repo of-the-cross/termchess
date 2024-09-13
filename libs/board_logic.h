@@ -14,7 +14,8 @@ tc_new_default_board(void);
 
 /* Check if two tc_square variables point to the same square. */
 int
-tc_square_equals(const tc_square* sqr1, const tc_square* sqr2);
+tc_square_equals(const tc_square* sqr1,
+                 const tc_square* sqr2);
 
 /*
   Find the ID of a piece in the board whose location
